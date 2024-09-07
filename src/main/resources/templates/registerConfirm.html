@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AppWish - 登録確認</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .info-item {
+            margin-bottom: 15px;
+        }
+        .label {
+            font-weight: bold;
+        }
+        .value {
+            margin-left: 10px;
+        }
+        .buttons {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 0 10px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        .btn-secondary {
+            background-color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>登録情報確認</h1>
+        <div class="info-item">
+            <span class="label">ユーザー名:</span>
+            <span class="value" th:text="${user.username}"></span>
+        </div>
+        <div class="info-item">
+            <span class="label">メールアドレス:</span>
+            <span class="value" th:text="${user.email}"></span>
+        </div>
+        <div class="info-item">
+            <span class="label">ユーザータイプ:</span>
+            <span class="value" th:text="${user.userType == 'ENGINEER' ? 'エンジニア' : 'アイデア提供者'}"></span>
+        </div>
+        <div class="buttons">
+            <a href="#" th:href="@{/users/register}" class="btn btn-secondary">修正する</a>
+            <form th:action="@{/users/register/complete}" method="post" style="display: inline;">
+                <input type="hidden" name="username" th:value="${user.username}" />
+                <input type="hidden" name="email" th:value="${user.email}" />
+                <input type="hidden" name="password" th:value="${user.password}" />
+                <input type="hidden" name="userType" th:value="${user.userType}" />
+                <button type="submit" class="btn">登録する</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AppWish - プロジェクト一覧・検索</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 1000px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1, h2 {
+            color: #333;
+        }
+        .search-form {
+            margin-bottom: 20px;
+        }
+        .search-form input[type="text"] {
+            width: 70%;
+            padding: 10px;
+            margin-right: 10px;
+        }
+        .search-form button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .project-list {
+            list-style-type: none;
+            padding: 0;
+        }
+        .project-item {
+            background-color: #f9f9f9;
+            margin-bottom: 10px;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        .project-title {
+            font-size: 1.2em;
+            color: #007bff;
+        }
+        .project-description {
+            margin-top: 5px;
+        }
+        .project-link {
+            display: inline-block;
+            margin-top: 10px;
+            color: #007bff;
+            text-decoration: none;
+        }
+        .project-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>プロジェクト一覧・検索</h1>
+        
+        <form class="search-form" th:action="@{/projects}" method="get">
+            <input type="text" name="keyword" th:value="${keyword}" placeholder="キーワードを入力">
+            <button type="submit">検索</button>
+        </form>
+        
+        <div th:if="${projects.empty}">
+            <p>プロジェクトが見つかりません。</p>
+        </div>
+        
+        <ul th:unless="${projects.empty}" class="project-list">
+            <li th:each="project : ${projects}" class="project-item">
+                <div class="project-title" th:text="${project.title}"></div>
+                <div class="project-description" th:text="${project.description}"></div>
+                <a class="project-link" th:href="@{/projects/{id}(id=${project.id})}">詳細を見る</a>
+            </li>
+        </ul>
+    </div>
+</body>
+</html>

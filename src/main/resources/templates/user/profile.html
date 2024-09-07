@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AppWish - ユーザープロフィール</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1, h2 {
+            color: #333;
+        }
+        .profile-info {
+            margin-bottom: 20px;
+        }
+        .profile-info p {
+            margin: 5px 0;
+        }
+        .btn {
+            display: inline-block;
+            background: #007bff;
+            color: white;
+            padding: 10px 15px;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        .btn:hover {
+            background: #0056b3;
+        }
+        .projects {
+            margin-top: 20px;
+        }
+        .project-item {
+            background: #f9f9f9;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>ユーザープロフィール</h1>
+        <div class="profile-info">
+            <p><strong>ユーザー名:</strong> <span th:text="${user.username}"></span></p>
+            <p><strong>メールアドレス:</strong> <span th:text="${user.email}"></span></p>
+            <p><strong>ユーザータイプ:</strong> <span th:text="${user.userType}"></span></p>
+            <p><strong>登録日:</strong> <span th:text="${#temporals.format(user.createdAt, 'yyyy-MM-dd')}"></span></p>
+        </div>
+        
+        <a th:href="@{/users/edit/{username}(username=${user.username})}" class="btn">プロフィール編集</a>
+
+        <div class="projects" th:if="${user.userType == 'IDEA_PROVIDER'}">
+            <h2>提案したプロジェクト</h2>
+            <div th:if="${projects.empty}">
+                <p>まだプロジェクトがありません。</p>
+            </div>
+            <div th:each="project : ${projects}" class="project-item">
+                <h3 th:text="${project.title}"></h3>
+                <p th:text="${project.description}"></p>
+                <a th:href="@{/projects/{id}(id=${project.id})}" class="btn">詳細を見る</a>
+            </div>
+        </div>
+
+        <div class="projects" th:if="${user.userType == 'ENGINEER'}">
+            <h2>参加中のプロジェクト</h2>
+            <div th:if="${projects.empty}">
+                <p>まだプロジェクトに参加していません。</p>
+            </div>
+            <div th:each="project : ${projects}" class="project-item">
+                <h3 th:text="${project.title}"></h3>
+                <p th:text="${project.description}"></p>
+                <a th:href="@{/projects/{id}(id=${project.id})}" class="btn">詳細を見る</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
