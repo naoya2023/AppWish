@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,6 +14,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.example.appwish.model.User;
 import com.example.appwish.service.UserService;
+
+import jakarta.validation.Valid;
 
 @Controller
 @RequestMapping("/users")
@@ -25,8 +28,14 @@ public class UserController {
         model.addAttribute("user", new User());
         return "register";
     }
+    
+    @PostMapping("/register/confirm")
+    public String confirmRegistration(@ModelAttribute("user") User user, Model model) {
+        model.addAttribute("user", user);
+        return "registerConfirm";
+    }
 
-    @PostMapping("/register")
+    @PostMapping("/register/complete")
     public String registerUser(@ModelAttribute("user") User user, RedirectAttributes redirectAttributes) {
         try {
             userService.registerUser(user);
@@ -49,7 +58,7 @@ public class UserController {
             String username = authentication.getName();
             User user = userService.findByUsername(username);
             model.addAttribute("user", user);
-            return "profile";
+            return "user/profile";
         }
         return "redirect:/login";
     }
@@ -58,7 +67,7 @@ public class UserController {
     public String showEditForm(@PathVariable String username, Model model) {
         User user = userService.findByUsername(username);
         model.addAttribute("user", user);
-        return "edit-user";
+        return "user/userEdit";
     }
 
     @PostMapping("/edit/{username}")
@@ -73,6 +82,22 @@ public class UserController {
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Update failed: " + e.getMessage());
             return "redirect:/users/edit/" + username;
+        }
+    }
+    
+    @PostMapping("/edit")
+    public String updateUser(@Valid @ModelAttribute("user") User user, BindingResult bindingResult, RedirectAttributes redirectAttributes) {
+        if (bindingResult.hasErrors()) {
+            return "user/userEdit";
+        }
+
+        try {
+            userService.updateUser(user);
+            redirectAttributes.addFlashAttribute("message", "ユーザー情報が正常に更新されました。");
+            return "redirect:/users/profile";
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "更新に失敗しました: " + e.getMessage());
+            return "redirect:/users/edit";
         }
     }
 }

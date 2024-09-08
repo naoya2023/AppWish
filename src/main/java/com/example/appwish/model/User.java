@@ -32,7 +32,7 @@ public class User {
     private String password;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "user_type", nullable = false)
+    @Column(name = "user_types", nullable = false)
     private UserType userType;
 
     @Column(name = "created_at")
