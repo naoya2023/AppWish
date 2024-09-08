@@ -21,6 +21,8 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 @Data
@@ -30,10 +32,14 @@ public class Project {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    
+    @NotBlank(message = "タイトルは必須です")
+    @Size(max = 100, message = "タイトルは100文字以内で入力してください")
 
     @Column(nullable = false)
     private String title;
 
+    @Size(max = 1000, message = "説明は1000文字以内で入力してください")
     @Column(columnDefinition = "TEXT")
     private String description;
 

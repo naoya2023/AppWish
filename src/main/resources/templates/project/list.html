@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AppWish - プロジェクト一覧・検索</title>
+    <title>AppWish - プロジェクト一覧</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -13,30 +13,38 @@
             background-color: #f4f4f4;
         }
         .container {
-            max-width: 1000px;
+            max-width: 800px;
             margin: auto;
             background: white;
             padding: 20px;
             border-radius: 5px;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
         }
-        h1, h2 {
+        h1 {
             color: #333;
+            text-align: center;
         }
         .search-form {
+            display: flex;
             margin-bottom: 20px;
         }
-        .search-form input[type="text"] {
-            width: 70%;
-            padding: 10px;
+        input[type="text"], select {
+            flex-grow: 1;
             margin-right: 10px;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
         }
-        .search-form button {
-            padding: 10px 20px;
+        button {
             background-color: #007bff;
             color: white;
+            padding: 8px 15px;
             border: none;
+            border-radius: 4px;
             cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
         }
         .project-list {
             list-style-type: none;
@@ -46,7 +54,7 @@
             background-color: #f9f9f9;
             margin-bottom: 10px;
             padding: 15px;
-            border-radius: 5px;
+            border-radius: 4px;
         }
         .project-title {
             font-size: 1.2em;
@@ -68,21 +76,27 @@
 </head>
 <body>
     <div class="container">
-        <h1>プロジェクト一覧・検索</h1>
+        <h1>プロジェクト一覧</h1>
         
         <form class="search-form" th:action="@{/projects}" method="get">
             <input type="text" name="keyword" th:value="${keyword}" placeholder="キーワードを入力">
+            <select name="category">
+                <option value="">すべてのカテゴリ</option>
+                <option th:each="cat : ${categories}" 
+                        th:value="${cat}" 
+                        th:text="${cat.displayName}"
+                        th:selected="${cat == selectedCategory}"></option>
+            </select>
             <button type="submit">検索</button>
         </form>
         
-        <div th:if="${projects.empty}">
-            <p>プロジェクトが見つかりません。</p>
-        </div>
+        <a href="/projects/create" class="project-link">新規プロジェクト作成</a>
         
-        <ul th:unless="${projects.empty}" class="project-list">
+        <ul class="project-list">
             <li th:each="project : ${projects}" class="project-item">
                 <div class="project-title" th:text="${project.title}"></div>
                 <div class="project-description" th:text="${project.description}"></div>
+                <div>カテゴリ: <span th:text="${project.category.displayName}"></span></div>
                 <a class="project-link" th:href="@{/projects/{id}(id=${project.id})}">詳細を見る</a>
             </li>
         </ul>

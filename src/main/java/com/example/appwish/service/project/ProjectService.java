@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.appwish.model.project.Project;
+import com.example.appwish.model.project.ProjectCategory;
 import com.example.appwish.repository.project.ProjectRepository;
 
 @Service
@@ -26,6 +27,14 @@ public class ProjectService {
 
     public List<Project> searchProjects(String keyword) {
         return projectRepository.findByTitleContainingOrDescriptionContaining(keyword, keyword);
+    }
+
+    public List<Project> getProjectsByCategory(ProjectCategory category) {
+        return projectRepository.findByCategory(category);
+    }
+
+    public List<Project> searchProjectsByKeywordAndCategory(String keyword, ProjectCategory category) {
+        return projectRepository.findByTitleContainingOrDescriptionContainingAndCategory(keyword, keyword, category);
     }
 
     public Project getProjectById(Long id) {

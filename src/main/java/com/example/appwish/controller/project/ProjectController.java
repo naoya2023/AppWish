@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.example.appwish.model.project.Project;
+import com.example.appwish.model.project.ProjectCategory;
 import com.example.appwish.service.project.ProjectService;
 
 import jakarta.validation.Valid;
@@ -31,12 +32,23 @@ public class ProjectController {
     }
 
     @GetMapping
-    public String listProjects(@RequestParam(required = false) String keyword, Model model) {
-        List<Project> projects = (keyword != null && !keyword.isEmpty()) 
-            ? projectService.searchProjects(keyword)
-            : projectService.getAllProjects();
+    public String listProjects(@RequestParam(required = false) String keyword, 
+                               @RequestParam(required = false) ProjectCategory category,
+                               Model model) {
+        List<Project> projects;
+        if (keyword != null && !keyword.isEmpty() && category != null) {
+            projects = projectService.searchProjectsByKeywordAndCategory(keyword, category);
+        } else if (keyword != null && !keyword.isEmpty()) {
+            projects = projectService.searchProjects(keyword);
+        } else if (category != null) {
+            projects = projectService.getProjectsByCategory(category);
+        } else {
+            projects = projectService.getAllProjects();
+        }
         model.addAttribute("projects", projects);
         model.addAttribute("keyword", keyword);
+        model.addAttribute("selectedCategory", category);
+        model.addAttribute("categories", ProjectCategory.values());
         return "project/list";
     }
 
@@ -49,6 +61,7 @@ public class ProjectController {
     @GetMapping("/create")
     public String showCreateForm(Model model) {
         model.addAttribute("project", new Project());
+        model.addAttribute("categories", ProjectCategory.values());
         return "project/form";
     }
 
@@ -65,6 +78,7 @@ public class ProjectController {
     @GetMapping("/edit/{id}")
     public String showEditForm(@PathVariable Long id, Model model) {
         model.addAttribute("project", projectService.getProjectById(id));
+        model.addAttribute("categories", ProjectCategory.values());
         return "project/form";
     }
 

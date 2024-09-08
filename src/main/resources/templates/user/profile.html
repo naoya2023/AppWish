@@ -36,6 +36,7 @@
             padding: 10px 15px;
             text-decoration: none;
             border-radius: 5px;
+            margin-right: 10px;
         }
         .btn:hover {
             background: #0056b3;
@@ -48,6 +49,12 @@
             padding: 10px;
             margin-bottom: 10px;
             border-radius: 5px;
+        }
+        .nav-links {
+            margin-top: 20px;
+            padding: 10px 0;
+            border-top: 1px solid #ddd;
+            border-bottom: 1px solid #ddd;
         }
     </style>
 </head>
@@ -62,6 +69,11 @@
         </div>
         
         <a th:href="@{/users/edit/{username}(username=${user.username})}" class="btn">プロフィール編集</a>
+
+        <div class="nav-links">
+            <a href="/projects/create" class="btn btn-primary">新規プロジェクト作成</a>
+            <a th:href="@{/projects}" class="btn">プロジェクト一覧</a>
+        </div>
 
         <div class="projects" th:if="${user.userType == 'IDEA_PROVIDER'}">
             <h2>提案したプロジェクト</h2>

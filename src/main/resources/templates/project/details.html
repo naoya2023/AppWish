@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AppWish - プロジェクト詳細</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .project-details {
+            margin-top: 20px;
+        }
+        .project-title {
+            font-size: 1.4em;
+            color: #007bff;
+            margin-bottom: 10px;
+        }
+        .project-description {
+            margin-bottom: 15px;
+        }
+        .project-info {
+            font-style: italic;
+            color: #666;
+        }
+        .btn {
+            display: inline-block;
+            background: #007bff;
+            color: white;
+            padding: 10px 15px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+        .btn:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>プロジェクト詳細</h1>
+        
+        <div class="project-details">
+            <div class="project-title" th:text="${project.title}"></div>
+            <div class="project-description" th:text="${project.description}"></div>
+            <div class="project-info">
+                <p>カテゴリ: <span th:text="${project.category.displayName}"></span></p>
+                <p>作成日: <span th:text="${#temporals.format(project.createdAt, 'yyyy-MM-dd HH:mm')}"></span></p>
+                <p>更新日: <span th:text="${#temporals.format(project.updatedAt, 'yyyy-MM-dd HH:mm')}"></span></p>
+            </div>
+        </div>
+        
+        <a th:href="@{/projects/edit/{id}(id=${project.id})}" class="btn">編集</a>
+        <form th:action="@{/projects/delete/{id}(id=${project.id})}" method="post" style="display: inline;">
+            <button type="submit" class="btn" onclick="return confirm('本当に削除しますか？');">削除</button>
+        </form>
+        <a th:href="@{/projects}" class="btn">プロジェクト一覧に戻る</a>
+    </div>
+</body>
+</html>
