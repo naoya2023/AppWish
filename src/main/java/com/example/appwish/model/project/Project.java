@@ -40,7 +40,7 @@ public class Project {
     private String title;
 
     @Size(max = 1000, message = "説明は1000文字以内で入力してください")
-    @Column(columnDefinition = "TEXT")
+//    @Column(columnDefinition = "TEXT")
     private String description;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -77,4 +77,7 @@ public class Project {
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
     }
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "created_by")
+    private User createdBy;
 }

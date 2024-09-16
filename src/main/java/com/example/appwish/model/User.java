@@ -1,14 +1,20 @@
 package com.example.appwish.model;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
@@ -41,6 +47,29 @@ public class User {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @Column(nullable = false)
+    private boolean deleted = false;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+        name = "user_contacts",
+        joinColumns = @JoinColumn(name = "user_id"),
+        inverseJoinColumns = @JoinColumn(name = "contact_id")
+    )
+    private List<User> contacts = new ArrayList<>();
+    
+    public String getUsername() {
+        return this.username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+    
+//    @ManyToOne(cascade = CascadeType.PERSIST)
+//    @JoinColumn(name = "sender_id", nullable = false)
+//    private User sender;
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
@@ -52,9 +81,17 @@ public class User {
         updatedAt = LocalDateTime.now();
     }
     
+    public void markAsDeleted() {
+        this.deleted = true;
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public boolean isDeleted() {
+        return deleted;
+    }
+    
     public enum UserType {
         ENGINEER,
         IDEA_PROVIDER
     }
 }
-

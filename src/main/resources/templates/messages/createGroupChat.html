@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AppWish - グループチャット作成</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 500px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1, h2 {
+            color: #333;
+            text-align: center;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+        label {
+            margin-top: 10px;
+        }
+        input[type="text"], input[type="checkbox"] {
+            margin-bottom: 10px;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 15px;
+            color: #007bff;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        .member-list {
+            margin-bottom: 20px;
+        }
+        .member-item {
+            margin-bottom: 5px;
+        }
+        .user-list {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+        .user-item {
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>グループチャット作成</h1>
+        <form th:action="@{/messages/create-group}" method="post">
+            <label for="groupName">グループ名:</label>
+            <input type="text" id="groupName" name="groupName" required>
+            
+            <h2>メンバー選択</h2>
+            <div class="user-list">
+                <div th:each="user : ${users}" class="user-item">
+                    <label>
+                        <input type="checkbox" name="memberIds" th:value="${user.id}">
+                        <span th:text="${user.username}"></span>
+                    </label>
+                </div>
+            </div>
+            <button type="submit">グループを作成</button>
+        </form>
+        <a th:href="@{/messages/list}" class="back-link">メッセージ一覧に戻る</a>
+    </div>
+</body>
+</html>

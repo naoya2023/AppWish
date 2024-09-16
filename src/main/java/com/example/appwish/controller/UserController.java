@@ -100,4 +100,16 @@ public class UserController {
             return "redirect:/users/edit";
         }
     }
+    
+    @RequestMapping("/api")
+    public class UserApiController {
+
+        @Autowired
+        private UserService userService;
+
+        @GetMapping("/current-user")
+        public User getCurrentUser(Authentication authentication) {
+            return userService.getCurrentUser(authentication);
+        }
+    }
 }

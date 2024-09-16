@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AppWish - 通知</title>
+    <style>
+        /* 既存のスタイルをここに追加 */
+        .notification-item {
+            background-color: #f9f9f9;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>通知</h1>
+        <div th:each="notification : ${notifications}" class="notification-item">
+            <p th:text="${notification.content}"></p>
+            <small th:text="${#temporals.format(notification.createdAt, 'yyyy-MM-dd HH:mm')}"></small>
+            <a th:if="${notification.type == 'MESSAGE'}" th:href="@{/messages/conversation/{id}(id=${notification.senderId})}" class="btn">返信</a>
+        </div>
+        <a th:href="@{/messages}" class="back-link">メッセージ一覧に戻る</a>
+    </div>
+</body>
+</html>

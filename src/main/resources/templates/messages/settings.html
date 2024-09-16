@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AppWish - 設定</title>
+    <style>
+        /* 既存のスタイルをここに追加 */
+        .setting-item {
+            margin-bottom: 20px;
+        }
+        .setting-item label {
+            display: block;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>設定</h1>
+        <form th:action="@{/settings/update}" method="post">
+            <div class="setting-item">
+                <h2>通知設定</h2>
+                <label>
+                    <input type="checkbox" name="emailNotifications" th:checked="${settings.emailNotifications}">
+                    メール通知を受け取る
+                </label>
+            </div>
+            <div class="setting-item">
+                <h2>プライバシー設定</h2>
+                <label>
+                    <input type="checkbox" name="profileVisibility" th:checked="${settings.profileVisibility}">
+                    プロフィールを公開する
+                </label>
+            </div>
+            <div class="setting-item">
+                <h2>アカウント設定</h2>
+                <label for="language">言語:</label>
+                <select id="language" name="language">
+                    <option value="ja" th:selected="${settings.language == 'ja'}">日本語</option>
+                    <option value="en" th:selected="${settings.language == 'en'}">English</option>
+                </select>
+            </div>
+            <button type="submit">設定を保存</button>
+        </form>
+        <a th:href="@{/profile}" class="back-link">プロフィールに戻る</a>
+    </div>
+</body>
+</html>

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>AppWish - チャット一覧</title>
+	<style>
+		body {
+			font-family: Arial, sans-serif;
+			line-height: 1.6;
+			margin: 0;
+			padding: 20px;
+			background-color: #f4f4f4;
+		}
+
+		.container {
+			max-width: 800px;
+			margin: auto;
+			background: white;
+			padding: 20px;
+			border-radius: 5px;
+			box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+		}
+
+		h1 {
+			color: #333;
+			text-align: center;
+		}
+
+		.conversation-item {
+			padding: 10px;
+			border-bottom: 1px solid #ddd;
+			transition: background-color 0.3s;
+		}
+
+		.conversation-item:hover {
+			background-color: #f9f9f9;
+		}
+
+		.conversation-item a {
+			text-decoration: none;
+			color: #333;
+			display: block;
+		}
+
+		.unread {
+			font-weight: bold;
+			background-color: #e6f3ff;
+		}
+
+		.btn {
+			display: inline-block;
+			background: #007bff;
+			color: white;
+			padding: 10px 15px;
+			text-decoration: none;
+			border-radius: 5px;
+			margin-top: 20px;
+		}
+
+		.btn:hover {
+			background: #0056b3;
+		}
+
+		.back-link {
+			display: block;
+			text-align: center;
+			margin-top: 20px;
+			color: #007bff;
+			text-decoration: none;
+		}
+
+		.back-link:hover {
+			text-decoration: underline;
+		}
+	</style>
+</head>
+
+<body>
+	<div class="container">
+		<h1>チャット一覧</h1>
+		<div th:each="conversation : ${conversations}" class="conversation-item"
+			th:classappend="${conversation.hasUnread ? 'unread' : ''}">
+			<a th:href="@{/messages/conversation/{recipientId}(recipientId=${conversation.otherUser.id})}">
+				<span th:text="${conversation.otherUser.username}"></span>
+				<p th:text="${conversation.lastMessage.content}"></p>
+				<small th:text="${#temporals.format(conversation.lastMessage.sentAt, 'yyyy-MM-dd HH:mm')}"></small>
+			</a>
+		</div>
+		<a th:href="@{/messages/new}" class="btn">新規チャット</a>
+		<a th:href="@{/users/profile}" class="back-link">プロフィールに戻る</a>
+	</div>
+</body>
+
+</html>

@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>AppWish - Private Chat</title>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+	<style>
+		body {
+			font-family: Arial, sans-serif;
+			line-height: 1.6;
+			margin: 0;
+			padding: 20px;
+			background-color: #f4f4f4;
+		}
+
+		.container {
+			max-width: 800px;
+			margin: auto;
+			background: white;
+			padding: 20px;
+			border-radius: 5px;
+			box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+		}
+
+		h1 {
+			color: #333;
+			text-align: center;
+		}
+
+		#chat-messages {
+			height: 400px;
+			overflow-y: auto;
+			border: 1px solid #ddd;
+			padding: 10px;
+			margin-bottom: 20px;
+		}
+
+		.message {
+			margin-bottom: 10px;
+		}
+
+		.message .sender {
+			font-weight: bold;
+		}
+
+		#message-input {
+			width: calc(100% - 70px);
+			padding: 8px;
+			margin-right: 10px;
+		}
+
+		button {
+			padding: 8px 15px;
+			background-color: #007bff;
+			color: white;
+			border: none;
+			cursor: pointer;
+		}
+
+		button:hover {
+			background-color: #0056b3;
+		}
+		.back-link {
+			display: block;
+			text-align: center;
+			margin-top: 20px;
+			color: #007bff;
+			text-decoration: none;
+		}
+
+		.back-link:hover {
+			text-decoration: underline;
+		}
+	</style>
+</head>
+
+<body>
+	<div class="container">
+		<h1>Private Chat with <span th:text="${recipient.username}"></span></h1>
+		<div id="chat-messages">
+			<div th:each="message : ${conversation}" class="message">
+				<span class="sender" th:text="${message.sender.username}"></span>: <span
+					th:text="${message.content}"></span>
+			</div>
+		</div>
+		<div>
+			<input type="text" id="message-input" placeholder="Type your message..." />
+			<button onclick="sendMessage()">Send</button>
+			 <a href="/messages/list" class="back-link">メッセージ一覧に戻る</a>
+		</div>
+	</div>
+
+	<script th:inline="javascript">
+		var stompClient = null;
+		var recipientId = /*[[${recipient.id}]]*/ null;
+		var currentUsername = /*[[${currentUser.username}]]*/ '';
+
+
+		function connect() {
+			var socket = new SockJS('/ws');
+			stompClient = Stomp.over(socket);
+			stompClient.connect({}, function (frame) {
+				console.log('Connected: ' + frame);
+				stompClient.subscribe('/topic/public', function (message) {
+					showMessage(JSON.parse(message.body));
+				});
+			});
+		}
+
+		function sendMessage() {
+			var messageContent = document.getElementById('message-input').value;
+			if (messageContent && messageContent.trim() !== '') {
+				stompClient.send("/app/chat.sendPrivate", {}, JSON.stringify({
+					'content': messageContent,
+					'recipient': {'id': recipientId}
+				}));
+				document.getElementById('message-input').value = '';
+			}
+		}
+
+		function showMessage(message) {
+			var messageElement = document.createElement('div');
+			messageElement.className = 'message';
+			messageElement.innerHTML = '<span class="sender">' + message.sender.username + '</span>: ' + message.content;
+			document.getElementById('chat-messages').appendChild(messageElement);
+			document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+		}
+
+		connect();
+
+		document.getElementById('message-input').addEventListener('keypress', function (e) {
+			if (e.key === 'Enter') {
+				sendMessage();
+			}
+		});
+	</script>
+</body>
+
+</html>

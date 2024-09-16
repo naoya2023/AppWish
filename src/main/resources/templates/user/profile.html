@@ -56,6 +56,20 @@
             border-top: 1px solid #ddd;
             border-bottom: 1px solid #ddd;
         }
+        
+        .chat-btn {
+            background-color: #28a745;
+        }
+        .chat-btn:hover {
+            background-color: #218838;
+        }
+        
+        .new-chat-btn {
+            background-color: #17a2b8;
+        }
+        .new-chat-btn:hover {
+            background-color: #138496;
+        }
     </style>
 </head>
 <body>
@@ -69,11 +83,16 @@
         </div>
         
         <a th:href="@{/users/edit/{username}(username=${user.username})}" class="btn">プロフィール編集</a>
+         <!-- チャットボタンを追加 -->
+        <a th:href="@{/messages/list}" class="btn chat-btn">チャット一覧</a>
+        <!-- 新規チャットボタンを追加 -->
+        <a th:href="@{/messages/new}" class="btn new-chat-btn">新規チャット</a>
 
         <div class="nav-links">
             <a href="/projects/create" class="btn btn-primary">新規プロジェクト作成</a>
             <a th:href="@{/projects}" class="btn">プロジェクト一覧</a>
         </div>
+
 
         <div class="projects" th:if="${user.userType == 'IDEA_PROVIDER'}">
             <h2>提案したプロジェクト</h2>

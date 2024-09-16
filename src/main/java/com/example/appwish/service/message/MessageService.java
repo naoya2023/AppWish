@@ -1,0 +1,141 @@
+package com.example.appwish.service.message;
+
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.example.appwish.model.User;
+import com.example.appwish.model.message.GroupChat;
+import com.example.appwish.model.message.Message;
+import com.example.appwish.repository.UserRepository;
+import com.example.appwish.repository.message.GroupChatRepository;
+import com.example.appwish.repository.message.MessageRepository;
+
+@Service
+public class MessageService {
+
+    @Autowired
+    private MessageRepository messageRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private GroupChatRepository groupChatRepository;
+
+    @Transactional
+    public Message sendMessage(User sender, User recipient, String content) {
+        if (sender == null || recipient == null) {
+            throw new IllegalArgumentException("送信者または受信者が無効です。");
+        }
+        Message message = new Message();
+        message.setSender(sender);
+        message.setRecipient(recipient);
+        message.setContent(content);
+        message.setType(Message.MessageType.CHAT);
+        message.setSentAt(LocalDateTime.now());
+        return messageRepository.save(message);
+    }
+
+    public List<Message> getConversation(User user1, User user2) {
+        return messageRepository.findBySenderAndRecipientOrRecipientAndSenderOrderBySentAtDesc(user1, user2, user1, user2);
+    }
+
+    public List<Message> getUnreadMessages(User recipient) {
+        return messageRepository.findByRecipientAndReadAtIsNullOrderBySentAtAsc(recipient);
+    }
+
+    @Transactional
+    public void markAsRead(Message message) {
+        if (message.getReadAt() == null) {
+            message.setReadAt(LocalDateTime.now());
+            messageRepository.save(message);
+        }
+    }
+
+    @Transactional
+    public Message sendGroupMessage(User sender, Long groupChatId, String content) {
+        GroupChat groupChat = groupChatRepository.findById(groupChatId)
+                .orElseThrow(() -> new RuntimeException("Group chat not found"));
+        Message message = new Message();
+        message.setSender(sender);
+        message.setGroupChat(groupChat);
+        message.setContent(content);
+        message.setType(Message.MessageType.CHAT);
+        message.setSentAt(LocalDateTime.now());
+        return messageRepository.save(message);
+    }
+
+    public List<Message> getGroupConversation(Long groupChatId) {
+        return messageRepository.findByGroupChatIdOrderBySentAtDesc(groupChatId);
+    }
+
+    public List<Message> getRecentMessages(User user) {
+        List<Message> lastMessages = messageRepository.findLastMessagesForUser(user);
+        return lastMessages.stream()
+                .sorted((m1, m2) -> m2.getSentAt().compareTo(m1.getSentAt()))
+                .limit(20)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public Message saveMessage(Message message) {
+        if (message.getSender() == null) {
+            throw new IllegalArgumentException("送信者が無効です。");
+        }
+        // 他のnullチェックも追加
+        message.setSentAt(LocalDateTime.now());
+        return messageRepository.save(message);
+    }
+
+    @Transactional
+    public Message startNewChat(User sender, User recipient, String content) {
+        return sendMessage(sender, recipient, content);
+    }
+
+    public List<ConversationPreview> getConversationPreviews(User user) {
+        List<Message> allMessages = messageRepository.findLastMessagesForUser(user);
+        Map<User, Message> latestMessages = new HashMap<>();
+
+        for (Message message : allMessages) {
+            User otherUser = message.getSender().equals(user) ? message.getRecipient() : message.getSender();
+            if (!latestMessages.containsKey(otherUser) || message.getSentAt().isAfter(latestMessages.get(otherUser).getSentAt())) {
+                latestMessages.put(otherUser, message);
+            }
+        }
+
+        return latestMessages.entrySet().stream()
+            .map(entry -> {
+                User otherUser = entry.getKey();
+                Message lastMessage = entry.getValue();
+                long unreadCount = messageRepository.countUnreadMessagesForConversation(user, otherUser);
+                return new ConversationPreview(otherUser, lastMessage, unreadCount > 0);
+            })
+            .sorted((a, b) -> b.getLastMessage().getSentAt().compareTo(a.getLastMessage().getSentAt()))
+            .collect(Collectors.toList());
+    }
+
+    public List<Message> searchMessages(User user, String query) {
+        return messageRepository.searchMessages(user, query);
+    }
+
+    public GroupChat getGroupChatById(Long groupId) {
+        return groupChatRepository.findById(groupId)
+                .orElseThrow(() -> new RuntimeException("Group chat not found"));
+    }
+
+    @Transactional
+    public GroupChat createGroupChat(String name, User creator, List<User> members) {
+        GroupChat groupChat = new GroupChat();
+        groupChat.setName(name);
+        groupChat.setCreator(creator);
+        groupChat.setMembers(members);
+        return groupChatRepository.save(groupChat);
+    }
+}

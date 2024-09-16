@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AppWish - 検索</title>
+    <style>
+        /* 既存のスタイルをここに追加 */
+        .search-form {
+            margin-bottom: 20px;
+        }
+        .search-result {
+            border-bottom: 1px solid #ddd;
+            padding: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>検索</h1>
+        <form th:action="@{/search}" method="get" class="search-form">
+            <input type="text" name="query" placeholder="検索キーワード" required>
+            <button type="submit">検索</button>
+        </form>
+        <div th:if="${searchResults}">
+            <h2>検索結果</h2>
+            <div th:each="result : ${searchResults}" class="search-result">
+                <strong th:text="${result.username}"></strong>
+                <a th:href="@{/messages/conversation/{id}(id=${result.id})}" class="btn">メッセージを送る</a>
+            </div>
+        </div>
+        <a th:href="@{/messages}" class="back-link">メッセージ一覧に戻る</a>
+    </div>
+</body>
+</html>
