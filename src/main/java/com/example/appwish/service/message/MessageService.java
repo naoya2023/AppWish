@@ -1,9 +1,8 @@
 package com.example.appwish.service.message;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,7 +76,7 @@ public class MessageService {
     }
 
     public List<Message> getRecentMessages(User user) {
-        List<Message> lastMessages = messageRepository.findLastMessagesForUser(user);
+        List<Message> lastMessages = messageRepository.findMessagesForUser(user);
         return lastMessages.stream()
                 .sorted((m1, m2) -> m2.getSentAt().compareTo(m1.getSentAt()))
                 .limit(20)
@@ -89,7 +88,9 @@ public class MessageService {
         if (message.getSender() == null) {
             throw new IllegalArgumentException("送信者が無効です。");
         }
-        // 他のnullチェックも追加
+        if (message.getContent() == null || message.getContent().trim().isEmpty()) {
+            throw new IllegalArgumentException("メッセージの内容が無効です。");
+        }
         message.setSentAt(LocalDateTime.now());
         return messageRepository.save(message);
     }
@@ -100,25 +101,42 @@ public class MessageService {
     }
 
     public List<ConversationPreview> getConversationPreviews(User user) {
-        List<Message> allMessages = messageRepository.findLastMessagesForUser(user);
-        Map<User, Message> latestMessages = new HashMap<>();
-
-        for (Message message : allMessages) {
-            User otherUser = message.getSender().equals(user) ? message.getRecipient() : message.getSender();
-            if (!latestMessages.containsKey(otherUser) || message.getSentAt().isAfter(latestMessages.get(otherUser).getSentAt())) {
-                latestMessages.put(otherUser, message);
+        List<ConversationPreview> previews = new ArrayList<>();
+        
+        // 個人チャットのプレビューを取得
+        List<Message> personalMessages = messageRepository.findMessagesForUser(user);
+        for (Message message : personalMessages) {
+            if (message.getSender() == null || message.getRecipient() == null) {
+                continue; // NULL値をスキップ
+            }
+            User otherUser = message.getSender().getId().equals(user.getId()) ? message.getRecipient() : message.getSender();
+            ConversationPreview preview = new ConversationPreview(otherUser, message, false);
+            preview.setOtherUser(otherUser);
+            preview.setLastMessage(message);
+            preview.setGroupChat(false);
+            preview.setHasUnread(messageRepository.countUnreadMessagesForConversation(user, otherUser) > 0);
+            previews.add(preview);
+        }
+        
+        // グループチャットのプレビューを取得
+        List<GroupChat> userGroupChats = groupChatRepository.findByMembersContaining(user);
+        for (GroupChat groupChat : userGroupChats) {
+            Message lastMessage = messageRepository.findTopByGroupChatOrderBySentAtDesc(groupChat);
+            if (lastMessage != null) {
+                ConversationPreview preview = new ConversationPreview(user, lastMessage, false);
+                preview.setId(groupChat.getId());
+                preview.setName(groupChat.getName());
+                preview.setLastMessage(lastMessage);
+                preview.setGroupChat(true);
+                preview.setHasUnread(messageRepository.countUnreadMessagesForGroupChat(groupChat, user) > 0);
+                previews.add(preview);
             }
         }
-
-        return latestMessages.entrySet().stream()
-            .map(entry -> {
-                User otherUser = entry.getKey();
-                Message lastMessage = entry.getValue();
-                long unreadCount = messageRepository.countUnreadMessagesForConversation(user, otherUser);
-                return new ConversationPreview(otherUser, lastMessage, unreadCount > 0);
-            })
-            .sorted((a, b) -> b.getLastMessage().getSentAt().compareTo(a.getLastMessage().getSentAt()))
-            .collect(Collectors.toList());
+        
+        // 最新のメッセージ順にソート
+        previews.sort((a, b) -> b.getLastMessage().getSentAt().compareTo(a.getLastMessage().getSentAt()));
+        
+        return previews;
     }
 
     public List<Message> searchMessages(User user, String query) {

@@ -73,7 +73,8 @@
         <form th:action="@{/projects/delete/{id}(id=${project.id})}" method="post" class="delete-form">
             <button type="submit" class="button" onclick="return confirm('本当に削除しますか？');">削除</button>
         </form>
-        <a th:href="@{/projects}" class="button">プロジェクト一覧に戻る</a>
+        <a th:href="@{/projects}" class="button">プロジェクト一覧へ</a>
+        <a th:href="@{/users/profile}" class="back-link">プロフィールに戻る</a>
     </div>
 </body>
 </html>

@@ -32,16 +32,21 @@ public class MessageController {
     @GetMapping("/list")
     public String showMessageList(Model model, Authentication authentication) {
         User currentUser = userService.getCurrentUser(authentication);
+        if (currentUser == null) {
+            return "redirect:/login";
+        }
         List<ConversationPreview> conversations = messageService.getConversationPreviews(currentUser);
         model.addAttribute("conversations", conversations);
+        model.addAttribute("currentUser", currentUser);
         return "messages/list";
     }
-    
-    
 
     @GetMapping("/private/{recipientId}")
     public String showPrivateChat(@PathVariable Long recipientId, Model model, Authentication authentication) {
         User currentUser = userService.getCurrentUser(authentication);
+        if (currentUser == null) {
+            return "redirect:/login";
+        }
         User recipient = userService.getUserById(recipientId);
         List<Message> conversation = messageService.getConversation(currentUser, recipient);
         model.addAttribute("conversation", conversation);
@@ -53,6 +58,9 @@ public class MessageController {
     @GetMapping("/group/{groupId}")
     public String showGroupChat(@PathVariable Long groupId, Model model, Authentication authentication) {
         User currentUser = userService.getCurrentUser(authentication);
+        if (currentUser == null) {
+            return "redirect:/login";
+        }
         GroupChat groupChat = messageService.getGroupChatById(groupId);
         List<Message> conversation = messageService.getGroupConversation(groupId);
         model.addAttribute("conversation", conversation);
@@ -64,15 +72,22 @@ public class MessageController {
     @GetMapping("/new")
     public String showNewChatForm(Model model, Authentication authentication) {
         User currentUser = userService.getCurrentUser(authentication);
+        if (currentUser == null) {
+            return "redirect:/login";
+        }
         List<User> allUsers = userService.getAllUsers();
         allUsers.remove(currentUser);
         model.addAttribute("users", allUsers);
+        model.addAttribute("currentUser", currentUser);
         return "messages/newChat";
     }
 
     @PostMapping("/private/start")
     public String startPrivateChat(@RequestParam Long recipientId, @RequestParam String content, Authentication authentication) {
         User sender = userService.getCurrentUser(authentication);
+        if (sender == null) {
+            return "redirect:/login";
+        }
         User recipient = userService.getUserById(recipientId);
         messageService.sendMessage(sender, recipient, content);
         return "redirect:/messages/private/" + recipientId;
@@ -81,36 +96,32 @@ public class MessageController {
     @GetMapping("/group/create")
     public String showCreateGroupForm(Model model, Authentication authentication) {
         User currentUser = userService.getCurrentUser(authentication);
+        if (currentUser == null) {
+            return "redirect:/login";
+        }
         List<User> allUsers = userService.getAllUsers();
-        allUsers.remove(currentUser); // 現在のユーザーを除外
+        allUsers.remove(currentUser);
         model.addAttribute("users", allUsers);
+        model.addAttribute("currentUser", currentUser);
         return "messages/createGroupChat";
     }
 
     @PostMapping("/group/create")
     public String createGroupChat(@RequestParam String groupName, @RequestParam List<Long> memberIds, Authentication authentication) {
         User creator = userService.getCurrentUser(authentication);
+        if (creator == null) {
+            return "redirect:/login";
+        }
         List<User> members = userService.getUsersByIds(memberIds);
         members.add(creator);
         GroupChat groupChat = messageService.createGroupChat(groupName, creator, members);
         return "redirect:/messages/group/" + groupChat.getId();
     }
-    @PostMapping("/create-group")
-    public String createGroup(@RequestParam String groupName, 
-                              @RequestParam List<Long> memberIds, 
-                              Authentication authentication) {
-        User creator = userService.getCurrentUser(authentication);
-        List<User> members = userService.getUsersByIds(memberIds);
-        members.add(creator); // 作成者も追加
-        GroupChat groupChat = messageService.createGroupChat(groupName, creator, members);
-        return "redirect:/messages/group/" + groupChat.getId();
-    }
-    
+
     @GetMapping("/conversation/{recipientId}")
     public String showConversation(@PathVariable Long recipientId, Model model, Authentication authentication) {
         User currentUser = userService.getCurrentUser(authentication);
         if (currentUser == null) {
-            // ユーザーが認証されていない場合はログインページにリダイレクト
             return "redirect:/login";
         }
         User recipient = userService.getUserById(recipientId);
@@ -120,12 +131,15 @@ public class MessageController {
         model.addAttribute("currentUser", currentUser);
         return "messages/conversation";
     }
+
     @PostMapping("/send")
     public String sendMessage(@RequestParam Long recipientId, @RequestParam String content, Authentication authentication) {
         User sender = userService.getCurrentUser(authentication);
+        if (sender == null) {
+            return "redirect:/login";
+        }
         User recipient = userService.getUserById(recipientId);
         messageService.sendMessage(sender, recipient, content);
         return "redirect:/messages/conversation/" + recipientId;
     }
-    
 }

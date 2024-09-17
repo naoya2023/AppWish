@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.example.appwish.model.User;
+import com.example.appwish.model.message.GroupChat;
 import com.example.appwish.model.message.Message;
 
 @Repository
@@ -24,13 +25,14 @@ public interface MessageRepository extends JpaRepository<Message, Long>, CustomM
     
     List<Message> findByGroupChatIdOrderBySentAtDesc(Long groupChatId);
     
-    @Query("SELECT m FROM Message m WHERE (m.sender = :user OR m.recipient = :user) " +
-           "AND m.id IN (SELECT MAX(m2.id) FROM Message m2 WHERE m2.sender = :user OR m2.recipient = :user " +
-           "GROUP BY CASE WHEN m2.sender = :user THEN m2.recipient.id ELSE m2.sender.id END) " +
-           "ORDER BY m.sentAt DESC")
-    List<Message> findLastMessagesForUser(@Param("user") User user);
-    
     @Query("SELECT m FROM Message m WHERE m.sender = :user OR m.recipient = :user ORDER BY m.sentAt DESC")
     List<Message> findMessagesForUser(@Param("user") User user);
     
+    @Query("SELECT COUNT(m) FROM Message m WHERE m.groupChat = :groupChat AND m.sender != :user AND m.readAt IS NULL")
+    long countUnreadMessagesForGroupChat(@Param("groupChat") GroupChat groupChat, @Param("user") User user);
+    
+    Message findTopByGroupChatOrderBySentAtDesc(GroupChat groupChat);
+    
+    @Query("SELECT COUNT(m) FROM Message m WHERE (m.sender = :user1 AND m.recipient = :user2) OR (m.sender = :user2 AND m.recipient = :user1) AND m.readAt IS NULL")
+    long countUnreadMessagesForConversation(@Param("user1") User user1, @Param("user2") User user2);
 }

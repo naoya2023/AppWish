@@ -74,6 +74,10 @@
 		.back-link:hover {
 			text-decoration: underline;
 		}
+
+		.group-chat {
+			background-color: #e6f3ff;
+		}
 	</style>
 </head>
 
@@ -81,14 +85,17 @@
 	<div class="container">
 		<h1>チャット一覧</h1>
 		<div th:each="conversation : ${conversations}" class="conversation-item"
-			th:classappend="${conversation.hasUnread ? 'unread' : ''}">
-			<a th:href="@{/messages/conversation/{recipientId}(recipientId=${conversation.otherUser.id})}">
-				<span th:text="${conversation.otherUser.username}"></span>
-				<p th:text="${conversation.lastMessage.content}"></p>
-				<small th:text="${#temporals.format(conversation.lastMessage.sentAt, 'yyyy-MM-dd HH:mm')}"></small>
+			th:classappend="${conversation.groupChat ? 'group-chat' : ''} + ${conversation.hasUnread ? ' unread' : ''}">
+			<a
+				th:href="${conversation.groupChat ? '/messages/group/' + conversation.id : '/messages/conversation/' + conversation.otherUser.id}">
+				<span th:text="${conversation.groupChat ? conversation.name : conversation.otherUser.username}"></span>
+				<p th:text="${conversation.lastMessage != null ? conversation.lastMessage.content : ''}"></p>
+				<small
+					th:text="${conversation.lastMessage != null ? #temporals.format(conversation.lastMessage.sentAt, 'yyyy-MM-dd HH:mm') : ''}"></small>
 			</a>
 		</div>
 		<a th:href="@{/messages/new}" class="btn">新規チャット</a>
+		<a th:href="@{/messages/group/create}" class="btn">新規グループチャット</a>
 		<a th:href="@{/users/profile}" class="back-link">プロフィールに戻る</a>
 	</div>
 </body>

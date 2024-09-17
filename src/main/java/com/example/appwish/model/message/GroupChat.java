@@ -18,6 +18,7 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import lombok.Data;
 
 @Data
@@ -33,13 +34,7 @@ public class GroupChat {
 
     @ManyToOne
     @JoinColumn(name = "creator_id", nullable = false)
-    
     private User creator;
-    @ManyToOne(optional = true)
-    @JoinColumn(name = "group_chat_id")
-    private GroupChat groupChat;
-    
-   
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
@@ -52,6 +47,9 @@ public class GroupChat {
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
+    @Transient
+    private boolean isGroupChat = true;
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
@@ -61,5 +59,14 @@ public class GroupChat {
         if (!members.contains(user)) {
             members.add(user);
         }
+    }
+
+    // 明示的なゲッターの追加
+    public Long getId() {
+        return this.id;
+    }
+
+    public boolean isGroupChat() {
+        return this.isGroupChat;
     }
 }

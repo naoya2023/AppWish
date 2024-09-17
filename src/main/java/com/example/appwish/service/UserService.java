@@ -23,7 +23,6 @@ public class UserService {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
     }
-    
 
     public User registerUser(User user) {
         if (userRepository.existsByUsername(user.getUsername())) {
@@ -58,11 +57,11 @@ public class UserService {
 
     public User getCurrentUser(Authentication authentication) {
         if (authentication == null) {
-            return null;
+            throw new IllegalStateException("No authentication found");
         }
         String username = authentication.getName();
         return userRepository.findByUsername(username)
-            .orElseThrow(() -> new RuntimeException("Logged in user not found in the database"));
+            .orElseThrow(() -> new RuntimeException("Logged in user not found in the database: " + username));
     }
 
     @Transactional(readOnly = true)
