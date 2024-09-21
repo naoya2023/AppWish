@@ -6,34 +6,69 @@
     <title>AppWish - エンジニアとアイデアをつなぐ</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
             line-height: 1.6;
             margin: 0;
-            padding: 20px;
-            background-color: #f4f4f4;
+            padding: 0;
+            background-color: #f8f9fa;
+            color: #333;
         }
         .container {
             max-width: 800px;
             margin: auto;
-            background: white;
-            padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            padding: 40px 20px;
         }
         h1, h2 {
-            color: #333;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        h1 {
+            font-size: 2.5em;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        h2 {
+            font-size: 1.8em;
+            margin-top: 30px;
+        }
+        p {
+            margin-bottom: 15px;
         }
         .btn {
             display: inline-block;
-            background: #007bff;
+            background: #3498db;
             color: #fff;
-            padding: 10px 20px;
+            padding: 12px 24px;
             text-decoration: none;
             border-radius: 5px;
             margin: 10px 0;
+            transition: background 0.3s ease;
         }
         .btn:hover {
-            background: #0056b3;
+            background: #2980b9;
+        }
+        ul {
+            padding-left: 20px;
+        }
+        li {
+            margin-bottom: 10px;
+        }
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .feature-item {
+            background: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        footer {
+            margin-top: 40px;
+            text-align: center;
+            color: #7f8c8d;
         }
     </style>
 </head>
@@ -44,11 +79,11 @@
         
         <h2>エンジニアの方へ</h2>
         <p>スキルを活かして、革新的なアイデアを形にしませんか？</p>
-        <a href="#" class="btn">プロジェクトを探す</a>
+        <a href="/projects/list" class="btn">プロジェクトを探す</a>
         
         <h2>アイデアをお持ちの方へ</h2>
         <p>あなたのアイデアを実現してくれるエンジニアを見つけましょう。</p>
-        <a href="#" class="btn">アイデアを投稿する</a>
+        <a href="/projects/create" class="btn">アイデアを投稿する</a>
         
         <h2>最近のマッチング</h2>
         <ul>
@@ -58,12 +93,12 @@
         </ul>
         
         <h2>AppWishの特徴</h2>
-        <ul>
-            <li>未経験エンジニアでも参加可能</li>
-            <li>多様なアイデアとのマッチング</li>
-            <li>プロジェクト管理ツールの提供</li>
-            <li>コミュニティサポート</li>
-        </ul>
+        <div class="feature-list">
+            <div class="feature-item">未経験エンジニアでも参加可能</div>
+            <div class="feature-item">多様なアイデアとのマッチング</div>
+            <div class="feature-item">プロジェクト管理ツールの提供</div>
+            <div class="feature-item">コミュニティサポート</div>
+        </div>
         
         <p>アカウントをお持ちでない方は、こちらから登録できます。</p>
         <a href="/users/register" class="btn">新規登録</a>

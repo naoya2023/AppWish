@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AppWish - プロジェクト作成/編集</title>
+    <title>AppWish - アイデア投稿</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -69,11 +69,9 @@
 </head>
 <body>
     <div class="container">
-        <h1 th:text="${project.id == null ? 'プロジェクト作成' : 'プロジェクト編集'}"></h1>
+        <h1>アプリアイデア投稿</h1>
         
-        <form th:action="@{${project.id == null ? '/projects/create' : '/projects/edit/' + project.id}}" method="post" th:object="${project}">
-            <input type="hidden" th:field="*{id}" />
-            
+        <form th:action="@{/ideas/submit}" method="post" th:object="${idea}">
             <div class="form-group">
                 <label for="title">タイトル：</label>
                 <input type="text" id="title" th:field="*{title}" required>
@@ -83,10 +81,7 @@
                 <label for="category">カテゴリー：</label>
                 <select id="category" th:field="*{category}" required>
                     <option value="">カテゴリーを選択してください</option>
-                    <option th:each="cat : ${T(com.example.appwish.model.project.ProjectCategory).values()}" 
-                            th:value="${cat}" 
-                            th:text="${cat.displayName}">
-                    </option>
+                    <option th:each="cat : ${categories}" th:value="${cat}" th:text="${cat.displayName}"></option>
                 </select>
             </div>
 
@@ -151,9 +146,9 @@
                 </div>
             </div>
 
-            <button type="submit">保存</button>
+            <button type="submit">アイデアを投稿する</button>
         </form>
-        <a th:href="@{/projects}" class="back-link">プロジェクト一覧に戻る</a>
+        <a th:href="@{/ideas}" class="back-link">アイデア一覧に戻る</a>
     </div>
 
     <script>

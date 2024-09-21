@@ -72,6 +72,16 @@
         .project-link:hover {
             text-decoration: underline;
         }
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            color: #007bff;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
@@ -82,7 +92,7 @@
             <input type="text" name="keyword" th:value="${keyword}" placeholder="キーワードを入力">
             <select name="category">
                 <option value="">すべてのカテゴリ</option>
-                <option th:each="cat : ${categories}" 
+                <option th:each="cat : ${T(com.example.appwish.model.project.ProjectCategory).values()}" 
                         th:value="${cat}" 
                         th:text="${cat.displayName}"
                         th:selected="${cat == selectedCategory}"></option>
@@ -90,17 +100,22 @@
             <button type="submit">検索</button>
         </form>
         
-        <a href="/projects/create" class="project-link">新規プロジェクト作成</a>
+        <a th:href="@{/projects/create}" class="project-link">新規プロジェクト作成</a>
         
         <ul class="project-list">
             <li th:each="project : ${projects}" class="project-item">
                 <div class="project-title" th:text="${project.title}"></div>
                 <div class="project-description" th:text="${project.description}"></div>
                 <div>カテゴリ: <span th:text="${project.category.displayName}"></span></div>
+                <div>ステータス: <span th:text="${project.status.displayName}"></span></div>
+                <div>アイデアの種: <span th:text="${project.ideaSeed}"></span></div>
+<!--                <div>アイデア提供者: <span th:text="${project.ideaProvider != null ? project.ideaProvider.username : '未設定'}"></span></div>-->
+                <div>作成者: <span th:text="${project.createdBy != null ? project.createdBy.username : '未設定'}"></span></div>
                 <a class="project-link" th:href="@{/projects/{id}(id=${project.id})}">詳細を見る</a>
             </li>
         </ul>
-         <a th:href="@{/users/profile}" class="back-link">プロフィールに戻る</a>
+        
+        <a th:href="@{/users/profile}" class="back-link">プロフィールに戻る</a>
     </div>
 </body>
 </html>

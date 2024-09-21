@@ -37,10 +37,26 @@ public class ProjectService {
         return projectRepository.findByTitleContainingOrDescriptionContainingAndCategory(keyword, keyword, category);
     }
 
+//    public Project getProjectById(Long id) {
+//        Project project = projectRepository.findById(id)
+//                .orElseThrow(() -> new RuntimeException("Project not found with id: " + id));
+//        if (project.getCreatedBy() != null) {
+//            // 作成者の情報を確実に取得
+//            project.getCreatedBy().getUsername();
+//        }
+//        return project;
+//    }
+    
     public Project getProjectById(Long id) {
-        return projectRepository.findById(id)
+        Project project = projectRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Project not found with id: " + id));
+        // createdBy が null でないことを確認
+        if (project.getCreatedBy() == null) {
+            throw new RuntimeException("Project creator is not set for project with id: " + id);
+        }
+        return project;
     }
+    
 
     public Project saveProject(Project project) {
         return projectRepository.save(project);
@@ -49,6 +65,4 @@ public class ProjectService {
     public void deleteProject(Long id) {
         projectRepository.deleteById(id);
     }
-    
-    
 }
