@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AppWish - プロジェクトチャット</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .chat-messages {
+            height: 400px;
+            overflow-y: scroll;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+        .message {
+            margin-bottom: 10px;
+            padding: 5px;
+            border-radius: 5px;
+        }
+        .message-sender {
+            font-weight: bold;
+            color: #007bff;
+        }
+        .message-content {
+            margin-top: 5px;
+        }
+        .message-form {
+            display: flex;
+        }
+        .message-input {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .send-btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            margin-left: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .send-btn:hover {
+            background-color: #0056b3;
+        }
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            color: #007bff;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        .members-list {
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 4px;
+        }
+        .members-list h2 {
+            margin-top: 0;
+            font-size: 1.2em;
+        }
+        .members-list ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        .members-list li {
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 th:text="${project.title} + ' - チャット'"></h1>
+        
+        <div class="members-list">
+            <h2>参加メンバー</h2>
+            <ul>
+                <li th:text="${project.createdBy.username} + ' (作成者)'"></li>
+                <li th:each="engineer : ${project.engineers}" th:text="${engineer.username}"></li>
+            </ul>
+        </div>
+        
+        <div class="chat-messages" id="chatMessages">
+            <div th:each="message : ${messages}" class="message">
+                <span class="message-sender" th:text="${message.sender.username}"></span>
+                <div class="message-content" th:text="${message.content}"></div>
+                <small th:text="${#temporals.format(message.sentAt, 'yyyy-MM-dd HH:mm')}"></small>
+            </div>
+        </div>
+        
+        <form class="message-form" id="messageForm">
+            <input type="text" class="message-input" id="messageInput" placeholder="メッセージを入力..." required>
+            <button type="submit" class="send-btn">送信</button>
+        </form>
+        
+        <a th:href="@{/projects/{id}(id=${project.id})}" class="back-link">プロジェクト詳細に戻る</a>
+    </div>
+
+    <script th:inline="javascript">
+        var stompClient = null;
+        var projectId = /*[[${project.id}]]*/ null;
+        var currentUsername = /*[[${currentUser.username}]]*/ '';
+
+        function connect() {
+            var socket = new SockJS('/ws');
+            stompClient = Stomp.over(socket);
+            stompClient.connect({}, function (frame) {
+                console.log('Connected: ' + frame);
+                stompClient.subscribe('/topic/project/' + projectId, function (message) {
+                    showMessage(JSON.parse(message.body));
+                });
+                // 接続成功メッセージを表示
+                showMessage({
+                    sender: {username: 'System'},
+                    content: currentUsername + ' さんが接続しました。',
+                    sentAt: new Date()
+                });
+            }, onError);
+        }
+
+        function onError(error) {
+            console.log('接続エラー:', error);
+            showMessage({
+                sender: {username: 'System'},
+                content: '接続エラーが発生しました。ページをリロードしてください。',
+                sentAt: new Date()
+            });
+        }
+
+        function sendMessage(message) {
+            if (stompClient) {
+                var chatMessage = {
+                    content: message,
+                    project: {'id': projectId}
+                };
+                stompClient.send("/app/chat.sendProject", {}, JSON.stringify(chatMessage));
+            }
+        }
+
+        function showMessage(message) {
+            var chatMessages = document.getElementById('chatMessages');
+            var messageElement = document.createElement('div');
+            messageElement.className = 'message';
+            messageElement.innerHTML = `
+                <span class="message-sender">${message.sender.username}</span>
+                <div class="message-content">${message.content}</div>
+                <small>${formatDate(message.sentAt)}</small>
+            `;
+            chatMessages.appendChild(messageElement);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function formatDate(date) {
+            var d = new Date(date);
+            return d.getFullYear() + '-' + 
+                   ('0' + (d.getMonth() + 1)).slice(-2) + '-' + 
+                   ('0' + d.getDate()).slice(-2) + ' ' + 
+                   ('0' + d.getHours()).slice(-2) + ':' + 
+                   ('0' + d.getMinutes()).slice(-2);
+        }
+
+        document.getElementById('messageForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            var messageInput = document.getElementById('messageInput');
+            var message = messageInput.value.trim();
+            if (message) {
+                sendMessage(message);
+                messageInput.value = '';
+            }
+        });
+
+        connect();
+    </script>
+</body>
+</html>

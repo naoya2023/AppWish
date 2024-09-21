@@ -20,6 +20,7 @@ import com.example.appwish.model.User;
 import com.example.appwish.model.project.Project;
 import com.example.appwish.model.project.ProjectCategory;
 import com.example.appwish.service.UserService;
+import com.example.appwish.service.message.MessageService;
 import com.example.appwish.service.project.ProjectService;
 
 import jakarta.validation.Valid;
@@ -30,11 +31,13 @@ public class ProjectController {
 
     private final ProjectService projectService;
     private final UserService userService;
+    private final MessageService messageService; 
 
     @Autowired
-    public ProjectController(ProjectService projectService, UserService userService) {
+    public ProjectController(ProjectService projectService, UserService userService, MessageService messageService) {
         this.projectService = projectService;
         this.userService = userService;
+        this.messageService = messageService;
     }
 
     @GetMapping
@@ -58,11 +61,20 @@ public class ProjectController {
         return "project/list";
     }
 
+//    @GetMapping("/{id}")
+//    public String projectDetails(@PathVariable Long id, Model model) {
+//        Project project = projectService.getProjectById(id);
+//        model.addAttribute("project", project);
+//        model.addAttribute("currentUser", getCurrentUser());
+//        return "project/details";
+//    }
     @GetMapping("/{id}")
     public String projectDetails(@PathVariable Long id, Model model) {
         Project project = projectService.getProjectById(id);
+        User currentUser = getCurrentUser();
         model.addAttribute("project", project);
-        model.addAttribute("currentUser", getCurrentUser());
+        model.addAttribute("currentUser", currentUser);
+        model.addAttribute("isAuthorized", isAuthorized(currentUser, project));
         return "project/details";
     }
 
@@ -169,5 +181,48 @@ public class ProjectController {
     private boolean isAuthorized(User user, Project project) {
         return user != null && project.getCreatedBy() != null && 
                user.getId().equals(project.getCreatedBy().getId());
+    }
+    
+    
+    @GetMapping("/{id}/chat")
+    public String projectChat(@PathVariable Long id, Model model) {
+        Project project = projectService.getProjectById(id);
+        User currentUser = getCurrentUser();
+        
+        
+        List<com.example.appwish.model.message.Message> messages = messageService.getProjectMessages(project);
+        model.addAttribute("project", project);
+        model.addAttribute("currentUser", currentUser);
+        model.addAttribute("messages", messages);
+        return "project/chat";
+    }
+    
+//    @GetMapping("/{id}/chat")
+//    public String projectChat(@PathVariable Long id, Model model, Authentication authentication) {
+//        User currentUser = userService.getCurrentUser(authentication);
+//        if (currentUser == null) {
+//            return "redirect:/login";
+//        }
+//        Project project = projectService.getProjectById(id);
+//        List<com.example.appwish.model.message.Message> messages = messageService.getProjectMessages(project);
+//        model.addAttribute("project", project);
+//        model.addAttribute("messages", messages);
+//        model.addAttribute("currentUser", currentUser);
+//        return "project/chat";
+//    }
+    
+    
+    @PostMapping("/{id}/chat/send")
+    public String sendChatMessage(@PathVariable Long id, @RequestParam String content, RedirectAttributes redirectAttributes) {
+        Project project = projectService.getProjectById(id);
+        User currentUser = getCurrentUser();
+        
+        if (!project.getEngineers().contains(currentUser) && !isAuthorized(currentUser, project)) {
+            redirectAttributes.addFlashAttribute("error", "メッセージを送信する権限がありません。");
+            return "redirect:/projects/" + id;
+        }
+        
+        messageService.sendProjectMessage(project, currentUser, content);
+        return "redirect:/projects/" + id + "/chat";
     }
 }

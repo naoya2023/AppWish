@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.example.appwish.model.User;
 import com.example.appwish.model.message.GroupChat;
 import com.example.appwish.model.message.Message;
+import com.example.appwish.model.project.Project;
 import com.example.appwish.repository.UserRepository;
 import com.example.appwish.repository.message.GroupChatRepository;
 import com.example.appwish.repository.message.MessageRepository;
@@ -92,8 +93,13 @@ public class MessageService {
             throw new IllegalArgumentException("メッセージの内容が無効です。");
         }
         message.setSentAt(LocalDateTime.now());
+        if (message.getType() == null) {
+            message.setType(Message.MessageType.CHAT);
+        }
         return messageRepository.save(message);
     }
+    
+    
 
     @Transactional
     public Message startNewChat(User sender, User recipient, String content) {
@@ -123,7 +129,7 @@ public class MessageService {
         for (GroupChat groupChat : userGroupChats) {
             Message lastMessage = messageRepository.findTopByGroupChatOrderBySentAtDesc(groupChat);
             if (lastMessage != null) {
-                ConversationPreview preview = new ConversationPreview(user, lastMessage, false);
+                ConversationPreview preview = new ConversationPreview(user, lastMessage, true);
                 preview.setId(groupChat.getId());
                 preview.setName(groupChat.getName());
                 preview.setLastMessage(lastMessage);
@@ -155,5 +161,34 @@ public class MessageService {
         groupChat.setCreator(creator);
         groupChat.setMembers(members);
         return groupChatRepository.save(groupChat);
+    }
+    
+//    public List<Message> getProjectMessages(Project project) {
+//        return messageRepository.findByProjectOrderBySentAtAsc(project);
+//    }
+//
+//    @Transactional
+//    public Message sendProjectMessage(Project project, User sender, String content) {
+//        Message message = new Message();
+//        message.setProject(project);
+//        message.setSender(sender);
+//        message.setContent(content);
+//        message.setSentAt(LocalDateTime.now());
+//        message.setType(Message.MessageType.CHAT);
+//        return messageRepository.save(message);
+//    }
+    
+    public List<Message> getProjectMessages(Project project) {
+        return messageRepository.findByProjectOrderBySentAtAsc(project);
+    }
+
+    public Message sendProjectMessage(Project project, User sender, String content) {
+        Message message = new Message();
+        message.setProject(project);
+        message.setSender(sender);
+        message.setContent(content);
+        message.setSentAt(LocalDateTime.now());
+        message.setType(Message.MessageType.CHAT);
+        return messageRepository.save(message);
     }
 }

@@ -3,6 +3,7 @@ package com.example.appwish.controller.message;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.Authentication;
@@ -77,4 +78,37 @@ public class WebSocketMessageController {
             throw new IllegalStateException("User not authenticated");
         }
     }
+    
+    
+    @MessageMapping("/chat.sendProject")
+    public void sendProjectMessage(@Payload Message message, SimpMessageHeaderAccessor headerAccessor) {
+        Authentication auth = (Authentication) headerAccessor.getUser();
+        if (auth != null && auth.isAuthenticated()) {
+            User sender = userService.getCurrentUser(auth);
+            if (sender != null) {
+                message.setSender(sender);
+                message = messageService.saveMessage(message);
+                
+                MessageDTO messageDTO = MessageDTO.fromEntity(message);
+                
+                messagingTemplate.convertAndSend(
+                    "/topic/project/" + message.getProject().getId(),
+                    messageDTO
+                );
+            } else {
+                throw new IllegalStateException("Authenticated user not found in the database");
+            }
+        } else {
+            throw new IllegalStateException("User not authenticated");
+        }
+    }
+    
+    @MessageMapping("/chat.sendMessage")
+    @SendTo("/topic/public")
+    public Message sendMessage(@Payload Message chatMessage) {
+        chatMessage.setType(Message.MessageType.CHAT); // タイプを明示的に設定
+        return messageService.saveMessage(chatMessage);
+    }
+    
+    
 }

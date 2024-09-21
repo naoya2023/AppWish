@@ -72,6 +72,19 @@
 		.back-link:hover {
 			text-decoration: underline;
 		}
+		
+		 .chat-btn {
+            background-color: #28a745;
+            color: white;
+            padding: 10px 15px;
+            text-decoration: none;
+            border-radius: 5px;
+            display: inline-block;
+            margin-top: 20px;
+        }
+        .chat-btn:hover {
+            background-color: #218838;
+        }
 	</style>
 </head>
 
@@ -124,6 +137,10 @@
 			th:unless="${currentUser != null and project.createdBy != null and currentUser.id == project.createdBy.id}">
 			<p>このプロジェクトの編集権限がありません。</p>
 		</div>
+		
+		<!-- オープンチャットへの遷移ボタン -->
+          <a th:href="@{/projects/{id}/chat(id=${project.id})}" class="chat-btn">プロジェクトチャットを開く</a>
+
 
 		<a th:href="@{/projects}" class="back-link">プロジェクト一覧に戻る</a>
 	</div>

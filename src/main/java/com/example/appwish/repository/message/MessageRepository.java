@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 import com.example.appwish.model.User;
 import com.example.appwish.model.message.GroupChat;
 import com.example.appwish.model.message.Message;
+import com.example.appwish.model.project.Project;
 
 @Repository
 public interface MessageRepository extends JpaRepository<Message, Long>, CustomMessageRepository {
@@ -24,6 +25,7 @@ public interface MessageRepository extends JpaRepository<Message, Long>, CustomM
     List<Message> findByRecipientOrderBySentAtDesc(User recipient);
     
     List<Message> findByGroupChatIdOrderBySentAtDesc(Long groupChatId);
+    List<Message> findByProjectOrderBySentAtAsc(Project project);
     
     @Query("SELECT m FROM Message m WHERE m.sender = :user OR m.recipient = :user ORDER BY m.sentAt DESC")
     List<Message> findMessagesForUser(@Param("user") User user);
