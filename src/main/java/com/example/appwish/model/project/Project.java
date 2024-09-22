@@ -77,7 +77,6 @@ public class Project {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
-    @NotBlank(message = "アイデアの種は必須です")
     @Column(name = "idea_seed")
     private String ideaSeed;
 
@@ -114,6 +113,9 @@ public class Project {
     @Lob
     private String freeformIdea;
 
+    @Column(name = "input_type")
+    private String inputType;
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
@@ -123,5 +125,14 @@ public class Project {
     @PreUpdate
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
+    }
+
+    // inputType のゲッターとセッター
+    public String getInputType() {
+        return inputType;
+    }
+
+    public void setInputType(String inputType) {
+        this.inputType = inputType;
     }
 }

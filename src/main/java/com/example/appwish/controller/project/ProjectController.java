@@ -61,13 +61,6 @@ public class ProjectController {
         return "project/list";
     }
 
-//    @GetMapping("/{id}")
-//    public String projectDetails(@PathVariable Long id, Model model) {
-//        Project project = projectService.getProjectById(id);
-//        model.addAttribute("project", project);
-//        model.addAttribute("currentUser", getCurrentUser());
-//        return "project/details";
-//    }
     @GetMapping("/{id}")
     public String projectDetails(@PathVariable Long id, Model model) {
         Project project = projectService.getProjectById(id);
@@ -102,11 +95,6 @@ public class ProjectController {
             project.setDescription(project.getFreeformIdea());
         }
 
-        // 構造化フォームのデータを設定
-        if ("structured".equals(inputType) || "both".equals(inputType)) {
-            // これらのフィールドは既にProjectオブジェクトに設定されているため、
-            // 明示的に設定し直す必要はありません。
-        }
 
         projectService.saveProject(project);
         redirectAttributes.addFlashAttribute("message", "プロジェクトが正常に作成されました。");
@@ -197,20 +185,6 @@ public class ProjectController {
         return "project/chat";
     }
     
-//    @GetMapping("/{id}/chat")
-//    public String projectChat(@PathVariable Long id, Model model, Authentication authentication) {
-//        User currentUser = userService.getCurrentUser(authentication);
-//        if (currentUser == null) {
-//            return "redirect:/login";
-//        }
-//        Project project = projectService.getProjectById(id);
-//        List<com.example.appwish.model.message.Message> messages = messageService.getProjectMessages(project);
-//        model.addAttribute("project", project);
-//        model.addAttribute("messages", messages);
-//        model.addAttribute("currentUser", currentUser);
-//        return "project/chat";
-//    }
-    
     
     @PostMapping("/{id}/chat/send")
     public String sendChatMessage(@PathVariable Long id, @RequestParam String content, RedirectAttributes redirectAttributes) {
@@ -224,5 +198,10 @@ public class ProjectController {
         
         messageService.sendProjectMessage(project, currentUser, content);
         return "redirect:/projects/" + id + "/chat";
+    }
+    
+    @GetMapping("/projectsrelate")
+    public String projecRelatet() {
+        return "project/projectsrelate";
     }
 }

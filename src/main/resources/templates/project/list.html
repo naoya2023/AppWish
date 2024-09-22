@@ -1,121 +1,231 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AppWish - プロジェクト一覧</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-            margin: 0;
-            padding: 20px;
-            background-color: #f4f4f4;
-        }
-        .container {
-            max-width: 800px;
-            margin: auto;
-            background: white;
-            padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-        h1 {
-            color: #333;
-            text-align: center;
-        }
-        .search-form {
-            display: flex;
-            margin-bottom: 20px;
-        }
-        input[type="text"], select {
-            flex-grow: 1;
-            margin-right: 10px;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-        button {
-            background-color: #007bff;
-            color: white;
-            padding: 8px 15px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-        .project-list {
-            list-style-type: none;
-            padding: 0;
-        }
-        .project-item {
-            background-color: #f9f9f9;
-            margin-bottom: 10px;
-            padding: 15px;
-            border-radius: 4px;
-        }
-        .project-title {
-            font-size: 1.2em;
-            color: #007bff;
-        }
-        .project-description {
-            margin-top: 5px;
-        }
-        .project-link {
-            display: inline-block;
-            margin-top: 10px;
-            color: #007bff;
-            text-decoration: none;
-        }
-        .project-link:hover {
-            text-decoration: underline;
-        }
-        .back-link {
-            display: block;
-            text-align: center;
-            margin-top: 20px;
-            color: #007bff;
-            text-decoration: none;
-        }
-        .back-link:hover {
-            text-decoration: underline;
-        }
-    </style>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>AppWish - プロジェクト一覧</title>
+	<style>
+		body {
+			font-family: Arial, sans-serif;
+			line-height: 1.6;
+			margin: 0;
+			padding: 20px;
+			background-color: #f4f4f4;
+		}
+
+		.container {
+			max-width: 800px;
+			margin: auto;
+			background: white;
+			padding: 20px;
+			border-radius: 5px;
+			box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+		}
+
+		h1 {
+			color: #333;
+			text-align: center;
+		}
+
+		.search-form {
+			display: flex;
+			margin-bottom: 20px;
+		}
+
+		input[type="text"],
+		select {
+			flex-grow: 1;
+			margin-right: 10px;
+			padding: 8px;
+			border: 1px solid #ddd;
+			border-radius: 4px;
+		}
+
+		button {
+			background-color: #007bff;
+			color: white;
+			padding: 8px 15px;
+			border: none;
+			border-radius: 4px;
+			cursor: pointer;
+		}
+
+		button:hover {
+			background-color: #0056b3;
+		}
+
+		.project-list {
+			list-style-type: none;
+			padding: 0;
+		}
+
+		.project-item {
+			background-color: #f9f9f9;
+			margin-bottom: 10px;
+			padding: 15px;
+			border-radius: 4px;
+		}
+
+		.project-title {
+			font-size: 1.2em;
+			color: #007bff;
+		}
+
+		.project-description {
+			margin-top: 5px;
+		}
+
+		.project-link {
+			display: inline-block;
+			margin-top: 10px;
+			color: #007bff;
+			text-decoration: none;
+		}
+
+		.project-link:hover {
+			text-decoration: underline;
+		}
+
+		.back-link {
+			display: block;
+			text-align: center;
+			margin-top: 20px;
+			color: #007bff;
+			text-decoration: none;
+		}
+
+		.back-link:hover {
+			text-decoration: underline;
+		}
+
+		.header {
+			background-color: #007bff;
+			color: white;
+			padding: 10px 20px;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+		}
+
+		.header a {
+			color: white;
+			text-decoration: none;
+		}
+
+		.account-menu {
+			position: relative;
+		}
+
+		.account-btn {
+			background: none;
+			border: none;
+			color: white;
+			cursor: pointer;
+			font-size: 1em;
+		}
+
+		.dropdown-content {
+			display: none;
+			position: absolute;
+			right: 0;
+			background-color: #f9f9f9;
+			min-width: 160px;
+			box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+			z-index: 1;
+		}
+
+		.dropdown-content a {
+			color: black;
+			padding: 12px 16px;
+			text-decoration: none;
+			display: block;
+		}
+
+		.dropdown-content a:hover {
+			background-color: #f1f1f1;
+		}
+
+		.account-menu:hover .dropdown-content {
+			display: block;
+		}
+	</style>
 </head>
+
 <body>
-    <div class="container">
-        <h1>プロジェクト一覧</h1>
-        
-        <form class="search-form" th:action="@{/projects}" method="get">
-            <input type="text" name="keyword" th:value="${keyword}" placeholder="キーワードを入力">
-            <select name="category">
-                <option value="">すべてのカテゴリ</option>
-                <option th:each="cat : ${T(com.example.appwish.model.project.ProjectCategory).values()}" 
-                        th:value="${cat}" 
-                        th:text="${cat.displayName}"
-                        th:selected="${cat == selectedCategory}"></option>
-            </select>
-            <button type="submit">検索</button>
-        </form>
-        
-        <a th:href="@{/projects/create}" class="project-link">新規プロジェクト作成</a>
-        
-        <ul class="project-list">
-            <li th:each="project : ${projects}" class="project-item">
-                <div class="project-title" th:text="${project.title}"></div>
-                <div class="project-description" th:text="${project.description}"></div>
-                <div>カテゴリ: <span th:text="${project.category.displayName}"></span></div>
-                <div>ステータス: <span th:text="${project.status.displayName}"></span></div>
-                <div>アイデアの種: <span th:text="${project.ideaSeed}"></span></div>
-<!--                <div>アイデア提供者: <span th:text="${project.ideaProvider != null ? project.ideaProvider.username : '未設定'}"></span></div>-->
-                <div>作成者: <span th:text="${project.createdBy != null ? project.createdBy.username : '未設定'}"></span></div>
-                <a class="project-link" th:href="@{/projects/{id}(id=${project.id})}">詳細を見る</a>
-            </li>
-        </ul>
-        
-        <a th:href="@{/users/profile}" class="back-link">プロフィールに戻る</a>
-    </div>
+	<header class="header">
+		<a href="/" class="logo">AppWish</a>
+		<div class="account-menu" th:if="${#authorization.expression('isAuthenticated()')}">
+			<button class="account-btn" th:text="${#authentication.name}">アカウント</button>
+			<div class="dropdown-content">
+				<a th:href="@{/users/profile}">プロフィール</a>
+				<a th:href="@{/messages/chatrelate}">チャット関連</a>
+				
+				
+				<a th:href="@{/projects/projectsrelate}">プロジェクト関連</a>
+				
+				<a th:href="@{/favorites}">お気に入り</a>
+				<a th:href="@{/logout}">ログアウト</a>
+			</div>
+		</div>
+		<div class="account-menu" th:unless="${#authorization.expression('isAuthenticated()')}">
+			<a th:href="@{/login}" class="btn">ログイン</a>
+			<a th:href="@{/register}" class="btn">新規登録</a>
+		</div>
+	</header>
+
+
+	<div class="container">
+		<h1>プロジェクト一覧</h1>
+
+		<form class="search-form" th:action="@{/projects}" method="get">
+			<input type="text" name="keyword" th:value="${keyword}" placeholder="キーワードを入力">
+			<select name="category">
+				<option value="">すべてのカテゴリ</option>
+				<option th:each="cat : ${T(com.example.appwish.model.project.ProjectCategory).values()}"
+					th:value="${cat}" th:text="${cat.displayName}" th:selected="${cat == selectedCategory}"></option>
+			</select>
+			<button type="submit">検索</button>
+		</form>
+
+		<a th:href="@{/projects/create}" class="project-link">新規プロジェクト作成</a>
+
+		<ul class="project-list">
+			<li th:each="project : ${projects}" class="project-item">
+				<div class="project-title" th:text="${project.title}"></div>
+				<div class="project-description" th:text="${project.description}"></div>
+				<div>カテゴリ: <span th:text="${project.category.displayName}"></span></div>
+				<div>ステータス: <span th:text="${project.status.displayName}"></span></div>
+				<!--                <div>アイデア提供者: <span th:text="${project.ideaProvider != null ? project.ideaProvider.username : '未設定'}"></span></div>-->
+				<div>作成者: <span th:text="${project.createdBy != null ? project.createdBy.username : '未設定'}"></span>
+				<div>ひとこと: <span th:text="${project.appealPoint}"></span></div>
+				</div>
+				<a class="project-link" th:href="@{/projects/{id}(id=${project.id})}">詳細を見る</a>
+			</li>
+		</ul>
+
+		<a th:href="@{/users/profile}" class="back-link">プロフィールに戻る</a>
+	</div>
+
+	<script>
+		// ドロップダウンメニューの表示/非表示を切り替えるJavaScript（オプション）
+		document.querySelector('.account-btn').addEventListener('click', function () {
+			document.querySelector('.dropdown-content').classList.toggle('show');
+		});
+
+		// クリック以外の場所をクリックしたときにドロップダウンを閉じる
+		window.onclick = function (event) {
+			if (!event.target.matches('.account-btn')) {
+				var dropdowns = document.getElementsByClassName("dropdown-content");
+				for (var i = 0; i < dropdowns.length; i++) {
+					var openDropdown = dropdowns[i];
+					if (openDropdown.classList.contains('show')) {
+						openDropdown.classList.remove('show');
+					}
+				}
+			}
+		}
+	</script>
 </body>
+
 </html>

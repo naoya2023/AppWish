@@ -10,7 +10,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.appwish.model.User;
+import com.example.appwish.model.project.Project;
 import com.example.appwish.repository.UserRepository;
+import com.example.appwish.repository.project.ProjectRepository;
 
 @Service
 @Transactional
@@ -18,11 +20,18 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final ProjectRepository projectRepository;
     
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, ProjectRepository projectRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.projectRepository = projectRepository;
+    }
+    @Transactional(readOnly = true)
+    public List<Project> getProjectsByUser(User user) {
+        return projectRepository.findByCreatedBy(user);
     }
 
     public User registerUser(User user) {

@@ -1,119 +1,131 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AppWish - ユーザープロフィール</title>
+    <title>AppWish - プロジェクト関連</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             line-height: 1.6;
             margin: 0;
-            padding: 20px;
+            padding: 0;
             background-color: #f4f4f4;
         }
-
         .container {
-            max-width: 800px;
+            max-width: 1200px;
             margin: auto;
             background: white;
-            padding: 20px;
+            padding: 30px;
             border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
         }
-
-        h1, h2 {
+        h1 {
             color: #333;
             text-align: center;
+            font-size: 2.5em;
+            margin-bottom: 40px;
         }
-
-        .profile-info {
+        .project-options {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 30px;
+        }
+        .project-option {
+            flex: 1;
+            min-width: 300px;
+            text-align: center;
+            padding: 30px;
+            background-color: #f0f0f0;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        .project-option:hover {
+            background-color: #e0e0e0;
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .project-option h2 {
+            margin-top: 0;
+            font-size: 1.8em;
+            color: #007bff;
+        }
+        .project-option p {
+            font-size: 1.1em;
             margin-bottom: 20px;
         }
-
-        .profile-info p {
-            margin: 5px 0;
-        }
-
         .btn {
             display: inline-block;
             background: #007bff;
             color: white;
-            padding: 10px 15px;
+            padding: 12px 20px;
             text-decoration: none;
             border-radius: 5px;
-            margin-right: 10px;
+            transition: background-color 0.3s;
+            font-size: 1.1em;
         }
-
         .btn:hover {
             background: #0056b3;
         }
-
-        .projects {
-            margin-top: 20px;
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 40px;
+            color: #007bff;
+            text-decoration: none;
+            font-size: 1.1em;
         }
-
-        .project-item {
-            background: #f9f9f9;
-            padding: 10px;
-            margin-bottom: 10px;
-            border-radius: 5px;
+        .back-link:hover {
+            text-decoration: underline;
         }
-
         .header {
             background-color: #007bff;
             color: white;
-            padding: 10px 20px;
+            padding: 15px 30px;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
-
         .header a {
             color: white;
             text-decoration: none;
+            font-size: 1.2em;
         }
-
         .account-menu {
             position: relative;
         }
-
         .account-btn {
             background: none;
             border: none;
             color: white;
             cursor: pointer;
-            font-size: 1em;
+            font-size: 1.2em;
         }
-
         .dropdown-content {
             display: none;
             position: absolute;
             right: 0;
             background-color: #f9f9f9;
-            min-width: 160px;
-            box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+            min-width: 200px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
             z-index: 1;
         }
-
         .dropdown-content a {
             color: black;
             padding: 12px 16px;
             text-decoration: none;
             display: block;
+            font-size: 1em;
         }
-
         .dropdown-content a:hover {
             background-color: #f1f1f1;
         }
-
         .account-menu:hover .dropdown-content {
             display: block;
         }
     </style>
 </head>
-
 <body>
     <header class="header">
         <a href="/" class="logo">AppWish</a>
@@ -121,9 +133,9 @@
             <button class="account-btn" th:text="${#authentication.name}">アカウント</button>
             <div class="dropdown-content">
                 <a th:href="@{/users/profile}">プロフィール</a>
-                 <a th:href="@{/messages/chatrelate}">チャット関連</a>
-               
-                
+                <a th:href="@{/messages/list}">チャット一覧</a>
+                <a th:href="@{/messages/new}">チャット開始</a>
+                <a th:href="@{/messages/group/create}">グループチャット開始</a>
                 <a th:href="@{/projects/projectsrelate}">プロジェクト関連</a>
                 
                 <a th:href="@{/favorites}">お気に入り</a>
@@ -137,33 +149,22 @@
     </header>
 
     <div class="container">
-        <h1>ユーザープロフィール</h1>
-        <div class="profile-info">
-            <p><strong>ユーザー名:</strong> <span th:text="${user.username}"></span></p>
-            <p><strong>メールアドレス:</strong> <span th:text="${user.email}"></span></p>
-            <p><strong>ユーザータイプ:</strong> <span th:text="${user.userType}"></span></p>
-            <p><strong>登録日:</strong> <span th:text="${#temporals.format(user.createdAt, 'yyyy-MM-dd')}"></span></p>
-        </div>
-
-        <a th:href="@{/users/edit/{username}(username=${user.username})}" class="btn">プロフィール編集</a>
-
-        <div class="projects">
-            <h2>作成したプロジェクト</h2>
-            <div th:if="${projects != null and not projects.empty}">
-                <div th:each="project : ${projects}" class="project-item">
-                    <h3 th:text="${project.title}"></h3>
-                    <p th:text="${project.description}"></p>
-                    <p><strong>カテゴリー:</strong> <span th:text="${project.category.displayName}"></span></p>
-                    <p><strong>ステータス:</strong> <span th:text="${project.status.displayName}"></span></p>
-                    <p><strong>ひとこと:</strong> <span th:text="${project.appealPoint}"></span></p>
-                    <a th:href="@{/projects/{id}(id=${project.id})}" class="btn">詳細を見る</a>
-                </div>
+        <h1>プロジェクト関連</h1>
+        
+        <div class="project-options">
+            <div class="project-option">
+                <h2>プロジェクト一覧</h2>
+                <p>既存のプロジェクトを表示します。アイデアの種から完成したプロジェクトまで、すべてのプロジェクトにアクセスできます。</p>
+                <a th:href="@{/projects}" class="btn">プロジェクト一覧を見る</a>
             </div>
-            <div th:if="${projects == null or projects.empty}">
-                <p>まだプロジェクトを作成していません。</p>
+            <div class="project-option">
+                <h2>プロジェクト新規作成</h2>
+                <p>新しいプロジェクトを作成します。アイデアを形にし、他のユーザーと共有しましょう。</p>
+                <a th:href="@{/projects/create}" class="btn">プロジェクトを作成</a>
             </div>
         </div>
+
+        <a th:href="@{/users/profile}" class="back-link">プロフィールに戻る</a>
     </div>
 </body>
-
 </html>

@@ -1,5 +1,7 @@
 package com.example.appwish.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -13,7 +15,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.example.appwish.model.User;
+import com.example.appwish.model.project.Project;
 import com.example.appwish.service.UserService;
+import com.example.appwish.service.project.ProjectService;
 
 import jakarta.validation.Valid;
 
@@ -22,6 +26,9 @@ import jakarta.validation.Valid;
 public class UserController {
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private ProjectService projectService;
 
     @GetMapping("/register")
     public String showRegistrationForm(Model model) {
@@ -57,7 +64,9 @@ public class UserController {
         if (authentication != null) {
             String username = authentication.getName();
             User user = userService.findByUsername(username);
+            List<Project> projects = userService.getProjectsByUser(user);
             model.addAttribute("user", user);
+            model.addAttribute("projects", projects);
             return "user/profile";
         }
         return "redirect:/login";

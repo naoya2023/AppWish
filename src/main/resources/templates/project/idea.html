@@ -1,178 +1,273 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AppWish - アイデア投稿</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-            margin: 0;
-            padding: 20px;
-            background-color: #f4f4f4;
-        }
-        .container {
-            max-width: 800px;
-            margin: auto;
-            background: white;
-            padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-        h1 {
-            color: #333;
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        .form-group {
-            margin-bottom: 20px;
-        }
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-        input[type="text"], textarea, select {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-sizing: border-box;
-        }
-        textarea {
-            height: 100px;
-            resize: vertical;
-        }
-        button {
-            background-color: #007bff;
-            color: white;
-            padding: 10px 15px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-        .back-link {
-            display: block;
-            text-align: center;
-            margin-top: 20px;
-            color: #007bff;
-            text-decoration: none;
-        }
-        .back-link:hover {
-            text-decoration: underline;
-        }
-    </style>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>AppWish - アイデア投稿</title>
+	<style>
+		body {
+			font-family: Arial, sans-serif;
+			line-height: 1.6;
+			margin: 0;
+			padding: 20px;
+			background-color: #f4f4f4;
+		}
+
+		.container {
+			max-width: 800px;
+			margin: auto;
+			background: white;
+			padding: 20px;
+			border-radius: 5px;
+			box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+		}
+
+		h1 {
+			color: #333;
+			text-align: center;
+			margin-bottom: 30px;
+		}
+
+		.form-group {
+			margin-bottom: 20px;
+		}
+
+		label {
+			display: block;
+			margin-bottom: 5px;
+			font-weight: bold;
+		}
+
+		input[type="text"],
+		textarea,
+		select {
+			width: 100%;
+			padding: 8px;
+			border: 1px solid #ddd;
+			border-radius: 4px;
+			box-sizing: border-box;
+		}
+
+		textarea {
+			height: 100px;
+			resize: vertical;
+		}
+
+		button {
+			background-color: #007bff;
+			color: white;
+			padding: 10px 15px;
+			border: none;
+			border-radius: 4px;
+			cursor: pointer;
+		}
+
+		button:hover {
+			background-color: #0056b3;
+		}
+
+		.back-link {
+			display: block;
+			text-align: center;
+			margin-top: 20px;
+			color: #007bff;
+			text-decoration: none;
+		}
+
+		.back-link:hover {
+			text-decoration: underline;
+		}
+
+		.header {
+			background-color: #007bff;
+			color: white;
+			padding: 10px 20px;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+		}
+
+		.header a {
+			color: white;
+			text-decoration: none;
+		}
+
+		.account-menu {
+			position: relative;
+		}
+
+		.account-btn {
+			background: none;
+			border: none;
+			color: white;
+			cursor: pointer;
+			font-size: 1em;
+		}
+
+		.dropdown-content {
+			display: none;
+			position: absolute;
+			right: 0;
+			background-color: #f9f9f9;
+			min-width: 160px;
+			box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+			z-index: 1;
+		}
+
+		.dropdown-content a {
+			color: black;
+			padding: 12px 16px;
+			text-decoration: none;
+			display: block;
+		}
+
+		.dropdown-content a:hover {
+			background-color: #f1f1f1;
+		}
+
+		.account-menu:hover .dropdown-content {
+			display: block;
+		}
+	</style>
 </head>
+
 <body>
-    <div class="container">
-        <h1>アプリアイデア投稿</h1>
-        
-        <form th:action="@{/ideas/submit}" method="post" th:object="${idea}">
-			
-            <div class="form-group">
-                <label for="title">タイトル：</label>
-                <input type="text" id="title" th:field="*{title}" required>
-            </div>
+	<header class="header">
+		<a href="/" class="logo">AppWish</a>
+		<div class="account-menu" th:if="${#authorization.expression('isAuthenticated()')}">
+			<button class="account-btn" th:text="${#authentication.name}">アカウント</button>
+			<div class="dropdown-content">
+				<a th:href="@{/users/profile}">プロフィール</a>
+				<a th:href="@{/messages/chatrelate}">チャット関連</a>
+				
+				
+				<a th:href="@{/projects/projectsrelate}">プロジェクト関連</a>
+				
+				<a th:href="@{/favorites}">お気に入り</a>
+				<a th:href="@{/logout}">ログアウト</a>
+			</div>
+		</div>
+		<div class="account-menu" th:unless="${#authorization.expression('isAuthenticated()')}">
+			<a th:href="@{/login}" class="btn">ログイン</a>
+			<a th:href="@{/register}" class="btn">新規登録</a>
+		</div>
+	</header>
 
-            <div class="form-group">
-                <label for="category">カテゴリー：</label>
-                <select id="category" th:field="*{category}" required>
-                    <option value="">カテゴリーを選択してください</option>
-                    <option th:each="cat : ${categories}" th:value="${cat}" th:text="${cat.displayName}"></option>
-                </select>
-            </div>
+	<div class="container">
+		<h1>アプリアイデア投稿</h1>
 
-            <div class="form-group">
-                <label for="input-type">入力方法を選択してください：</label>
-                <select id="input-type" name="inputType" onchange="toggleInputMethod()">
-                    <option value="structured">構造化フォーム</option>
-                    <option value="freeform">自由記述</option>
-                    <option value="both" selected>両方</option>
-                </select>
-            </div>
+		<form th:action="@{/ideas/submit}" method="post" th:object="${idea}">
+			<div class="form-group">
+				<label for="title">タイトル：</label>
+				<input type="text" id="title" th:field="*{title}" required>
+			</div>
 
-            <div id="structured-form">
-                <div class="form-group">
-                    <label for="ideaSeed">🌱 アイデアの種</label>
-                    <textarea id="ideaSeed" th:field="*{ideaSeed}" placeholder="あなたの日常や仕事で「こんなアプリがあったらいいのに」と思ったことを書いてください。"></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="problem">🔍 課題の発見</label>
-                    <textarea id="problem" th:field="*{problem}" placeholder="最近、不便だなと感じたことや解決したい問題を書いてください。"></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="idealSituation">🌈 理想の状況</label>
-                    <textarea id="idealSituation" th:field="*{idealSituation}" placeholder="その問題が解決されたら、あなたの生活はどう変わりますか？"></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="currentSolution">🛠️ 現在の対処法</label>
-                    <textarea id="currentSolution" th:field="*{currentSolution}" placeholder="その問題に対して、今はどのように対処していますか？"></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="userStory">👥 ユーザーストーリー</label>
-                    <textarea id="userStory" th:field="*{userStory}" placeholder="このアプリを使う人は、どんな場面でどのように使うと思いますか？具体例を挙げてください。"></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="emotionalConnection">😊 感情的なつながり</label>
-                    <textarea id="emotionalConnection" th:field="*{emotionalConnection}" placeholder="このアプリがあったら、どんな気持ちになりますか？"></textarea>
-                </div>
-                <div class="form-group">
-                    <label>⭐ 重要機能（3つまで）</label>
-                    <input type="text" th:field="*{keyFeatures[0]}" placeholder="重要な機能1">
-                    <input type="text" th:field="*{keyFeatures[1]}" placeholder="重要な機能2">
-                    <input type="text" th:field="*{keyFeatures[2]}" placeholder="重要な機能3">
-                </div>
-                <div class="form-group">
-                    <label for="usabilityPoint">🔧 使いやすさのポイント</label>
-                    <input type="text" id="usabilityPoint" th:field="*{usabilityPoint}" placeholder="このアプリを使う上で、最も重要な使いやすさのポイントは何ですか？">
-                </div>
-                <div class="form-group">
-                    <label for="futurePossibility">🚀 将来の可能性</label>
-                    <textarea id="futurePossibility" th:field="*{futurePossibility}" placeholder="このアプリが成功したら、将来どんな機能や使い方が追加されると面白いですか？"></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="appealPoint">📢 魅力的なポイント</label>
-                    <input type="text" id="appealPoint" th:field="*{appealPoint}" placeholder="このアプリの魅力を一言で表すとしたら？">
-                </div>
-            </div>
+			<div class="form-group">
+				<label for="category">カテゴリー：</label>
+				<select id="category" th:field="*{category}" required>
+					<option value="">カテゴリーを選択してください</option>
+					<option th:each="cat : ${categories}" th:value="${cat}" th:text="${cat.displayName}"></option>
+				</select>
+			</div>
 
-            <div id="freeform-input" style="display:none;">
-                <div class="form-group">
-                    <label for="freeformIdea">自由にアイデアを記述してください：</label>
-                    <textarea id="freeformIdea" th:field="*{freeformIdea}" rows="10" placeholder="あなたのアプリアイデアを自由に記述してください。"></textarea>
-                </div>
-            </div>
+			<div class="form-group">
+				<label for="input-type">入力方法を選択してください：</label>
+				<select id="input-type" name="inputType" onchange="toggleInputMethod()">
+					<option value="structured">構造化フォーム</option>
+					<option value="freeform">自由記述</option>
+					<option value="both" selected>両方</option>
+				</select>
+			</div>
 
-            <button type="submit">アイデアを投稿する</button>
-        </form>
-        <a th:href="@{/ideas}" class="back-link">アイデア一覧に戻る</a>
-    </div>
+			<div id="structured-form">
+				<div class="form-group">
+					<label for="ideaSeed">🌱 アイデア</label>
+					<textarea id="ideaSeed" th:field="*{ideaSeed}"
+						placeholder="あなたの日常や仕事で「こんなアプリがあったらいいのに」と思ったことを書いてください。"></textarea>
+				</div>
+				<div class="form-group">
+					<label for="problem">🔍 課題の発見</label>
+					<textarea id="problem" th:field="*{problem}"
+						placeholder="最近、不便だなと感じたことや解決したい問題を書いてください。"></textarea>
+				</div>
+				<div class="form-group">
+					<label for="idealSituation">🌈 理想の状況</label>
+					<textarea id="idealSituation" th:field="*{idealSituation}"
+						placeholder="その問題が解決されたら、あなたの生活はどう変わりますか？"></textarea>
+				</div>
+				<div class="form-group">
+					<label for="currentSolution">🛠️ 現在の対処法</label>
+					<textarea id="currentSolution" th:field="*{currentSolution}"
+						placeholder="その問題に対して、今はどのように対処していますか？"></textarea>
+				</div>
+				<div class="form-group">
+					<label for="userStory">👥 ユーザーストーリー</label>
+					<textarea id="userStory" th:field="*{userStory}"
+						placeholder="このアプリを使う人は、どんな場面でどのように使うと思いますか？具体例を挙げてください。"></textarea>
+				</div>
+				<div class="form-group">
+					<label for="emotionalConnection">😊 感情的なつながり</label>
+					<textarea id="emotionalConnection" th:field="*{emotionalConnection}"
+						placeholder="このアプリがあったら、どんな気持ちになりますか？"></textarea>
+				</div>
+				<div class="form-group">
+					<label>⭐ 重要機能（3つまで）</label>
+					<input type="text" th:field="*{keyFeatures[0]}" placeholder="重要な機能1">
+					<input type="text" th:field="*{keyFeatures[1]}" placeholder="重要な機能2">
+					<input type="text" th:field="*{keyFeatures[2]}" placeholder="重要な機能3">
+				</div>
+				<div class="form-group">
+					<label for="usabilityPoint">🔧 使いやすさのポイント</label>
+					<input type="text" id="usabilityPoint" th:field="*{usabilityPoint}"
+						placeholder="このアプリを使う上で、最も重要な使いやすさのポイントは何ですか？">
+				</div>
+				<div class="form-group">
+					<label for="futurePossibility">🚀 将来の可能性</label>
+					<textarea id="futurePossibility" th:field="*{futurePossibility}"
+						placeholder="このアプリが成功したら、将来どんな機能や使い方が追加されると面白いですか？"></textarea>
+				</div>
+				<div class="form-group">
+					<label for="appealPoint">📢 魅力的なポイント</label>
+					<input type="text" id="appealPoint" th:field="*{appealPoint}" placeholder="このアプリの魅力を一言で表すとしたら？">
+				</div>
+			</div>
 
-    <script>
-        function toggleInputMethod() {
-            var inputType = document.getElementById('input-type').value;
-            var structuredForm = document.getElementById('structured-form');
-            var freeformInput = document.getElementById('freeform-input');
-            
-            switch(inputType) {
-                case 'structured':
-                    structuredForm.style.display = 'block';
-                    freeformInput.style.display = 'none';
-                    break;
-                case 'freeform':
-                    structuredForm.style.display = 'none';
-                    freeformInput.style.display = 'block';
-                    break;
-                case 'both':
-                    structuredForm.style.display = 'block';
-                    freeformInput.style.display = 'block';
-                    break;
-            }
-        }
-    </script>
+			<div id="freeform-input" style="display:none;">
+				<div class="form-group">
+					<label for="freeformIdea">自由にアイデアを記述してください：</label>
+					<textarea id="freeformIdea" th:field="*{freeformIdea}" rows="10"
+						placeholder="あなたのアプリアイデアを自由に記述してください。"></textarea>
+				</div>
+			</div>
+
+			<button type="submit">アイデアを投稿する</button>
+		</form>
+		<a th:href="@{/ideas}" class="back-link">アイデア一覧に戻る</a>
+	</div>
+
+	<script>
+		function toggleInputMethod() {
+			var inputType = document.getElementById('input-type').value;
+			var structuredForm = document.getElementById('structured-form');
+			var freeformInput = document.getElementById('freeform-input');
+
+			switch (inputType) {
+				case 'structured':
+					structuredForm.style.display = 'block';
+					freeformInput.style.display = 'none';
+					break;
+				case 'freeform':
+					structuredForm.style.display = 'none';
+					freeformInput.style.display = 'block';
+					break;
+				case 'both':
+					structuredForm.style.display = 'block';
+					freeformInput.style.display = 'block';
+					break;
+			}
+		}
+	</script>
 </body>
+
 </html>

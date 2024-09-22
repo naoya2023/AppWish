@@ -142,4 +142,10 @@ public class MessageController {
         messageService.sendMessage(sender, recipient, content);
         return "redirect:/messages/conversation/" + recipientId;
     }
+    
+    @GetMapping("/chatrelate")
+    public String showChatrelate() {
+      
+        return "messages/chatrelate";
+    }
 }
