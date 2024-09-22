@@ -10,32 +10,32 @@ public enum ProjectCategory {
     /**
      * Webアプリケーション
      */
-    WEB_APPLICATION("Webアプリケーション"),
+    WEB_APPLICATION("エンタメ"),
 
     /**
      * モバイルアプリ
      */
-    MOBILE_APP("モバイルアプリ"),
+    MOBILE_APP("ライフスタイル"),
 
     /**
      * デスクトップアプリケーション
      */
-    DESKTOP_APPLICATION("デスクトップアプリケーション"),
+    DESKTOP_APPLICATION("ビジネス"),
 
     /**
      * ゲーム
      */
-    GAME("ゲーム"),
+    GAME("金融"),
 
     /**
      * AI/機械学習
      */
-    AI_ML("AI/機械学習"),
+    AI_ML("ファッション"),
 
     /**
      * IoT (Internet of Things)
      */
-    IOT("IoT"),
+    IOT("教育"),
 
     /**
      * その他

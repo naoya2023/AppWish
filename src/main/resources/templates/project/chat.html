@@ -1,193 +1,264 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AppWish - プロジェクトチャット</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-            margin: 0;
-            padding: 20px;
-            background-color: #f4f4f4;
-        }
-        .container {
-            max-width: 800px;
-            margin: auto;
-            background: white;
-            padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-        h1 {
-            color: #333;
-            text-align: center;
-        }
-        .chat-messages {
-            height: 400px;
-            overflow-y: scroll;
-            border: 1px solid #ddd;
-            padding: 10px;
-            margin-bottom: 20px;
-            border-radius: 4px;
-        }
-        .message {
-            margin-bottom: 10px;
-            padding: 5px;
-            border-radius: 5px;
-        }
-        .message-sender {
-            font-weight: bold;
-            color: #007bff;
-        }
-        .message-content {
-            margin-top: 5px;
-        }
-        .message-form {
-            display: flex;
-        }
-        .message-input {
-            flex-grow: 1;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-        .send-btn {
-            background-color: #007bff;
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            margin-left: 10px;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        .send-btn:hover {
-            background-color: #0056b3;
-        }
-        .back-link {
-            display: block;
-            text-align: center;
-            margin-top: 20px;
-            color: #007bff;
-            text-decoration: none;
-        }
-        .back-link:hover {
-            text-decoration: underline;
-        }
-        .members-list {
-            margin-bottom: 20px;
-            padding: 10px;
-            background-color: #f0f0f0;
-            border-radius: 4px;
-        }
-        .members-list h2 {
-            margin-top: 0;
-            font-size: 1.2em;
-        }
-        .members-list ul {
-            list-style-type: none;
-            padding: 0;
-        }
-        .members-list li {
-            margin-bottom: 5px;
-        }
-    </style>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>AppWish - プロジェクトチャット</title>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+	<style>
+		body {
+			font-family: Arial, sans-serif;
+			line-height: 1.6;
+			margin: 0;
+			padding: 20px;
+			background-color: #f4f4f4;
+		}
+
+		.container {
+			max-width: 800px;
+			margin: auto;
+			background: white;
+			padding: 20px;
+			border-radius: 5px;
+			box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+		}
+
+		h1 {
+			color: #333;
+			text-align: center;
+		}
+
+		.chat-messages {
+			height: 400px;
+			overflow-y: scroll;
+			border: 1px solid #ddd;
+			padding: 10px;
+			margin-bottom: 20px;
+			border-radius: 4px;
+		}
+
+		.message {
+			margin-bottom: 10px;
+			padding: 5px;
+			border-radius: 5px;
+			cursor: pointer;
+		}
+
+		.message:hover {
+			background-color: #f0f0f0;
+		}
+
+		.message-sender {
+			font-weight: bold;
+			color: #007bff;
+		}
+
+		.message-content {
+			margin-top: 5px;
+		}
+
+		.message-form {
+			display: flex;
+		}
+
+		.message-input {
+			flex-grow: 1;
+			padding: 10px;
+			border: 1px solid #ddd;
+			border-radius: 4px;
+			resize: vertical;
+			min-height: 60px;
+		}
+
+		.send-btn {
+			background-color: #007bff;
+			color: white;
+			border: none;
+			padding: 10px 15px;
+			margin-left: 10px;
+			border-radius: 4px;
+			cursor: pointer;
+		}
+
+		.send-btn:hover {
+			background-color: #0056b3;
+		}
+
+		.back-link {
+			display: block;
+			text-align: center;
+			margin-top: 20px;
+			color: #007bff;
+			text-decoration: none;
+		}
+
+		.back-link:hover {
+			text-decoration: underline;
+		}
+
+		.members-list {
+			margin-bottom: 20px;
+			padding: 10px;
+			background-color: #f0f0f0;
+			border-radius: 4px;
+		}
+
+		.members-list h2 {
+			margin-top: 0;
+			font-size: 1.2em;
+		}
+
+		.members-list ul {
+			list-style-type: none;
+			padding: 0;
+		}
+
+		.members-list li {
+			margin-bottom: 5px;
+		}
+
+		.fixed-messages {
+			margin-bottom: 20px;
+			padding: 10px;
+			background-color: #e0e0e0;
+			border-radius: 4px;
+		}
+
+		.fixed-message {
+			background-color: #fff;
+			border: 1px solid #ddd;
+			padding: 5px;
+			margin-bottom: 5px;
+			border-radius: 3px;
+			cursor: pointer;
+		}
+	</style>
 </head>
+
 <body>
-    <div class="container">
-        <h1 th:text="${project.title} + ' - チャット'"></h1>
-        
-        <div class="members-list">
-            <h2>参加メンバー</h2>
-            <ul>
-                <li th:text="${project.createdBy.username} + ' (作成者)'"></li>
-                <li th:each="engineer : ${project.engineers}" th:text="${engineer.username}"></li>
-            </ul>
-        </div>
-        
-        <div class="chat-messages" id="chatMessages">
-            <div th:each="message : ${messages}" class="message">
-                <span class="message-sender" th:text="${message.sender.username}"></span>
-                <div class="message-content" th:text="${message.content}"></div>
-                <small th:text="${#temporals.format(message.sentAt, 'yyyy-MM-dd HH:mm')}"></small>
-            </div>
-        </div>
-        
-        <form class="message-form" id="messageForm">
-            <input type="text" class="message-input" id="messageInput" placeholder="メッセージを入力..." required>
-            <button type="submit" class="send-btn">送信</button>
-        </form>
-        
-        <a th:href="@{/projects/{id}(id=${project.id})}" class="back-link">プロジェクト詳細に戻る</a>
-    </div>
+	<div class="container">
+		<h1 th:text="${project.title} + ' - チャット'"></h1>
 
-    <script th:inline="javascript">
-        var stompClient = null;
-        var projectId = /*[[${project.id}]]*/ null;
-        var currentUsername = /*[[${currentUser.username}]]*/ '';
+		<!--        <div class="members-list">-->
+		<!--            <h2>参加メンバー</h2>-->
+		<!--            <ul>-->
+		<!--                <li th:text="${project.createdBy.username} + ' (作成者)'"></li>-->
+		<!--                <li th:each="engineer : ${project.engineers}" th:text="${engineer.username}"></li>-->
+		<!--            </ul>-->
+		<!--        </div>-->
 
-        function connect() {
-            var socket = new SockJS('/ws');
-            stompClient = Stomp.over(socket);
-            stompClient.connect({}, function (frame) {
-                console.log('Connected: ' + frame);
-                stompClient.subscribe('/topic/project/' + projectId, function (message) {
-                    showMessage(JSON.parse(message.body));
-                });
-                // 接続成功メッセージを表示
-                showMessage({
-                    sender: {username: 'System'},
-                    content: currentUsername + ' さんが接続しました。',
-                    sentAt: new Date()
-                });
-            }, onError);
-        }
+		<div class="fixed-messages">
+			<h3>固定メッセージ</h3>
+			<div id="fixedMessageList"></div>
+		</div>
 
-        function onError(error) {
-            console.log('接続エラー:', error);
-            showMessage({
-                sender: {username: 'System'},
-                content: '接続エラーが発生しました。ページをリロードしてください。',
-                sentAt: new Date()
-            });
-        }
+		<div class="chat-messages" id="chatMessages">
+			<div th:each="message : ${messages}" class="message" th:attr="data-message=${message.content}">
+				<span class="message-sender" th:text="${message.sender.username}"></span>
+				<div class="message-content" th:text="${message.content}"></div>
+				<small th:text="${#temporals.format(message.sentAt, 'yyyy-MM-dd HH:mm')}"></small>
+			</div>
+		</div>
 
-        function sendMessage(message) {
-            if (stompClient) {
-                var chatMessage = {
-                    content: message,
-                    project: {'id': projectId}
-                };
-                stompClient.send("/app/chat.sendProject", {}, JSON.stringify(chatMessage));
-            }
-        }
+		<form class="message-form" id="messageForm">
+			<textarea class="message-input" id="messageInput" placeholder="メッセージを入力..." required></textarea>
+			<button type="submit" class="send-btn">送信</button>
+		</form>
 
-        function showMessage(message) {
+		<a th:href="@{/projects/{id}(id=${project.id})}" class="back-link">プロジェクト詳細に戻る</a>
+	</div>
+
+	<script th:inline="javascript">
+		/*<![CDATA[*/
+		var stompClient = null;
+		var projectId = /*[[${project.id}]]*/ null;
+		var currentUsername = /*[[${currentUser.username}]]*/ '';
+		var fixedMessages = [];
+
+		function connect() {
+			var socket = new SockJS('/ws');
+			stompClient = Stomp.over(socket);
+			stompClient.connect({}, function (frame) {
+				console.log('Connected: ' + frame);
+				stompClient.subscribe('/topic/project/' + projectId, function (message) {
+					showMessage(JSON.parse(message.body));
+				});
+			}, onError);
+		}
+
+		function onError(error) {
+			console.log('接続エラー:', error);
+			showMessage({
+				sender: {username: 'System'},
+				content: '接続エラーが発生しました。ページをリロードしてください。',
+				sentAt: new Date()
+			});
+		}
+
+		function sendMessage(message) {
+			if (stompClient) {
+				var chatMessage = {
+					content: message,
+					project: {'id': projectId},
+					type: 'CHAT'
+				};
+				stompClient.send("/app/chat.sendProject", {}, JSON.stringify(chatMessage));
+			}
+		}
+
+		function showMessage(message) {
             var chatMessages = document.getElementById('chatMessages');
             var messageElement = document.createElement('div');
             messageElement.className = 'message';
+            messageElement.setAttribute('data-message', message.content);
             messageElement.innerHTML = `
-                <span class="message-sender">${message.sender.username}</span>
-                <div class="message-content">${message.content}</div>
+                <span class="message-sender">${escapeHtml(message.sender.username)}</span>
+                <div class="message-content">${formatMessageContent(message.content)}</div>
                 <small>${formatDate(message.sentAt)}</small>
             `;
+            messageElement.addEventListener('click', function() {
+                toggleFixedMessage(message.content);
+            });
             chatMessages.appendChild(messageElement);
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
 
-        function formatDate(date) {
+		function formatDate(date) {
             var d = new Date(date);
-            return d.getFullYear() + '-' + 
-                   ('0' + (d.getMonth() + 1)).slice(-2) + '-' + 
-                   ('0' + d.getDate()).slice(-2) + ' ' + 
-                   ('0' + d.getHours()).slice(-2) + ':' + 
-                   ('0' + d.getMinutes()).slice(-2);
+            return d.getFullYear() + '-' +
+                ('0' + (d.getMonth() + 1)).slice(-2) + '-' +
+                ('0' + d.getDate()).slice(-2) + ' ' +
+                ('0' + d.getHours()).slice(-2) + ':' +
+                ('0' + d.getMinutes()).slice(-2);
         }
 
-        document.getElementById('messageForm').addEventListener('submit', function(e) {
+		 function toggleFixedMessage(message) {
+            var index = fixedMessages.findIndex(m => m === message);
+            if (index > -1) {
+                fixedMessages.splice(index, 1);
+            } else {
+                fixedMessages.push(message);
+            }
+            updateFixedMessageList();
+        }
+		function updateFixedMessageList() {
+            var fixedMessageList = document.getElementById('fixedMessageList');
+            fixedMessageList.innerHTML = '';
+            fixedMessages.forEach(function (message) {
+                var messageElement = document.createElement('div');
+                messageElement.className = 'fixed-message';
+                messageElement.innerHTML = formatMessageContent(message);
+                messageElement.addEventListener('click', function () {
+                    document.getElementById('messageInput').value = message;
+                    toggleFixedMessage(message);
+                });
+                fixedMessageList.appendChild(messageElement);
+            });
+        }
+
+		document.getElementById('messageForm').addEventListener('submit', function (e) {
             e.preventDefault();
             var messageInput = document.getElementById('messageInput');
             var message = messageInput.value.trim();
@@ -197,7 +268,27 @@
             }
         });
 
-        connect();
-    </script>
+		 function formatMessageContent(content) {
+            return escapeHtml(content).replace(/\n/g, '<br>');
+        }
+        function escapeHtml(unsafe) {
+            return unsafe
+                 .replace(/&/g, "&amp;")
+                 .replace(/</g, "&lt;")
+                 .replace(/>/g, "&gt;")
+                 .replace(/"/g, "&quot;")
+                 .replace(/'/g, "&#039;");
+        }
+
+		document.querySelectorAll('.message').forEach(function (element) {
+            element.addEventListener('click', function () {
+                toggleFixedMessage(this.getAttribute('data-message'));
+            });
+        });
+
+		connect();
+		/*]]>*/
+	</script>
 </body>
+
 </html>

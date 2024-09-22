@@ -72,6 +72,7 @@
         <h1>アプリアイデア投稿</h1>
         
         <form th:action="@{/ideas/submit}" method="post" th:object="${idea}">
+			
             <div class="form-group">
                 <label for="title">タイトル：</label>
                 <input type="text" id="title" th:field="*{title}" required>
