@@ -8,6 +8,7 @@ import java.util.Set;
 
 import com.example.appwish.model.User;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
@@ -23,6 +24,7 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
@@ -135,4 +137,41 @@ public class Project {
     public void setInputType(String inputType) {
         this.inputType = inputType;
     }
+    
+
+    
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProjectArtifact> artifacts = new ArrayList<>();
+
+    public void addArtifact(ProjectArtifact artifact) {
+        artifacts.add(artifact);
+        artifact.setProject(this);
+    }
+
+    public void removeArtifact(ProjectArtifact artifact) {
+        artifacts.remove(artifact);
+        artifact.setProject(null);
+    }
+    
+    
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+        name = "project_favorites",
+        joinColumns = @JoinColumn(name = "project_id"),
+        inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    private Set<User> favoritedBy = new HashSet<>();
+    
+    public void addFavorite(User user) {
+        favoritedBy.add(user);
+    }
+
+    public void removeFavorite(User user) {
+        favoritedBy.remove(user);
+    }
+
+    public boolean isFavoritedBy(User user) {
+        return favoritedBy.contains(user);
+    }
+    
 }

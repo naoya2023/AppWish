@@ -65,21 +65,18 @@
 
 <body>
     <div class="container">
-        <h1>プロジェクト完成品/試作品アップロード</h1>
+        <h1>プロジェクト完成品/試作品紹介</h1>
         <form th:action="@{/projects/{id}/upload(id=${project.id})}" method="post" enctype="multipart/form-data">
-            <div class="form-group">
-                <label for="file">ファイルを選択:</label>
-                <input type="file" id="file" name="file" required>
-            </div>
+           
             <div class="form-group">
                 <label for="description">説明:</label>
                 <textarea id="description" name="description" rows="4" required></textarea>
             </div>
-            <div class="form-group">
-                <label for="version">バージョン:</label>
-                <input type="text" id="version" name="version" required>
+             <div class="form-group">
+                <label for="file">ファイルを選択:</label>
+                <input type="file" id="file" name="file" required>
             </div>
-            <button type="submit" class="btn">アップロード</button>
+            <button type="submit" class="btn">投稿</button>
         </form>
         <a th:href="@{/projects/{id}(id=${project.id})}" class="back-link">プロジェクト詳細に戻る</a>
     </div>

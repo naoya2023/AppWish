@@ -73,7 +73,7 @@
 			text-decoration: underline;
 		}
 
-		.chat-btn {
+		.btn {
 			background-color: #28a745;
 			color: white;
 			padding: 10px 15px;
@@ -151,7 +151,7 @@
 
 
 				<a th:href="@{/projects/projectsrelate}">プロジェクト関連</a>
-				
+
 				<a th:href="@{/favorites}">お気に入り</a>
 				<a th:href="@{/logout}">ログアウト</a>
 			</div>
@@ -216,12 +216,16 @@
 		</div>
 
 		<!-- オープンチャットへの遷移ボタン -->
-		<a th:href="@{/projects/{id}/chat(id=${project.id})}" class="chat-btn">プロジェクトチャットを開く</a>
+		<a th:href="@{/projects/{id}/chat(id=${project.id})}" class="btn">プロジェクトチャットを開く</a>
 		<!-- アップロードボタンを追加 -->
-            <a th:href="@{/projects/{id}/upload(id=${project.id})}" class="upload-btn">完成品/試作品をアップロード</a>
-        </div>
+		<a th:href="@{/projects/{id}/upload(id=${project.id})}" class="btn">完成品/試作品をアップロード</a>
+		<!-- プロジェクト詳細ページの適切な位置に以下のリンクを追加 -->
+		<a th:href="@{/projects/{id}/artifacts(id=${project.id})}" class="btn">完成品/試作品一覧を見る</a>
 
-		<a th:href="@{/projects}" class="back-link">プロジェクト一覧に戻る</a>
+	</div>
+
+
+	<a th:href="@{/projects}" class="back-link">プロジェクト一覧に戻る</a>
 	</div>
 </body>
 

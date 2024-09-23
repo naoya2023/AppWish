@@ -6,8 +6,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.appwish.model.User;
 import com.example.appwish.model.project.Project;
+import com.example.appwish.model.project.ProjectArtifact;
 import com.example.appwish.model.project.ProjectCategory;
+import com.example.appwish.repository.project.ProjectArtifactRepository;
 import com.example.appwish.repository.project.ProjectRepository;
 
 @Service
@@ -15,10 +18,12 @@ import com.example.appwish.repository.project.ProjectRepository;
 public class ProjectService {
 
     private final ProjectRepository projectRepository;
+    private final ProjectArtifactRepository projectArtifactRepository;
 
     @Autowired
-    public ProjectService(ProjectRepository projectRepository) {
+    public ProjectService(ProjectRepository projectRepository, ProjectArtifactRepository projectArtifactRepository) {
         this.projectRepository = projectRepository;
+        this.projectArtifactRepository = projectArtifactRepository;
     }
 
     public List<Project> getAllProjects() {
@@ -37,32 +42,57 @@ public class ProjectService {
         return projectRepository.findByTitleContainingOrDescriptionContainingAndCategory(keyword, keyword, category);
     }
 
-//    public Project getProjectById(Long id) {
-//        Project project = projectRepository.findById(id)
-//                .orElseThrow(() -> new RuntimeException("Project not found with id: " + id));
-//        if (project.getCreatedBy() != null) {
-//            // 作成者の情報を確実に取得
-//            project.getCreatedBy().getUsername();
-//        }
-//        return project;
-//    }
-    
     public Project getProjectById(Long id) {
         Project project = projectRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Project not found with id: " + id));
-        // createdBy が null でないことを確認
         if (project.getCreatedBy() == null) {
             throw new RuntimeException("Project creator is not set for project with id: " + id);
         }
         return project;
     }
-    
 
+    @Transactional
     public Project saveProject(Project project) {
         return projectRepository.save(project);
     }
 
     public void deleteProject(Long id) {
         projectRepository.deleteById(id);
+    }
+    
+    public ProjectArtifact saveProjectArtifact(ProjectArtifact artifact) {
+        return projectArtifactRepository.save(artifact);
+    }
+
+    public List<ProjectArtifact> getProjectArtifacts(Project project) {
+        return projectArtifactRepository.findByProjectOrderByUploadedAtDesc(project);
+    }
+    
+    public ProjectArtifact getProjectArtifactById(Long id) {
+        return projectArtifactRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Artifact not found with id: " + id));
+    }
+
+    @Transactional
+    public boolean toggleFavorite(Long artifactId, User user) {
+        ProjectArtifact artifact = getProjectArtifactById(artifactId);
+        if (artifact.isFavoritedBy(user)) {
+            artifact.removeFavorite(user);
+            projectArtifactRepository.save(artifact);
+            return false;
+        } else {
+            artifact.addFavorite(user);
+            projectArtifactRepository.save(artifact);
+            return true;
+        }
+    }
+
+    public boolean isFavorited(Long artifactId, User user) {
+        ProjectArtifact artifact = getProjectArtifactById(artifactId);
+        return artifact.isFavoritedBy(user);
+    }
+
+    public List<ProjectArtifact> getFavoriteArtifacts(User user) {
+        return projectArtifactRepository.findByFavoritedByContaining(user);
     }
 }
