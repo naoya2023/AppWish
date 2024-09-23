@@ -73,16 +73,6 @@
 			text-decoration: underline;
 		}
 
-		.btn {
-			background-color: #28a745;
-			color: white;
-			padding: 10px 15px;
-			text-decoration: none;
-			border-radius: 5px;
-			display: inline-block;
-			margin-top: 20px;
-		}
-
 		.chat-btn:hover {
 			background-color: #218838;
 		}
@@ -137,6 +127,31 @@
 		.account-menu:hover .dropdown-content {
 			display: block;
 		}
+
+		.btn {
+			display: inline-block;
+			background: #007bff;
+			color: white;
+			padding: 10px 15px;
+			text-decoration: none;
+			border-radius: 5px;
+			margin-right: 10px;
+			margin-top: 20px;
+			border: none;
+			cursor: pointer;
+		}
+
+		.btn:hover {
+			background: #0056b3;
+		}
+
+		.favorite-btn {
+			background-color: #28a745;
+		}
+
+		.favorite-btn:hover {
+			background-color: #218838;
+		}
 	</style>
 </head>
 
@@ -152,7 +167,7 @@
 
 				<a th:href="@{/projects/projectsrelate}">プロジェクト関連</a>
 
-				<a th:href="@{/favorites}">お気に入り</a>
+				<a th:href="@{/projects/favorites}">お気に入り</a>
 				<a th:href="@{/logout}">ログアウト</a>
 			</div>
 		</div>
@@ -219,8 +234,15 @@
 		<a th:href="@{/projects/{id}/chat(id=${project.id})}" class="btn">プロジェクトチャットを開く</a>
 		<!-- アップロードボタンを追加 -->
 		<a th:href="@{/projects/{id}/upload(id=${project.id})}" class="btn">完成品/試作品をアップロード</a>
+
 		<!-- プロジェクト詳細ページの適切な位置に以下のリンクを追加 -->
 		<a th:href="@{/projects/{id}/artifacts(id=${project.id})}" class="btn">完成品/試作品一覧を見る</a>
+
+		<form th:action="@{/projects/{id}/favorite(id=${project.id})}" method="post">
+			<button type="submit" class="btn favorite-btn"
+				th:text="${project.isFavoritedBy(currentUser)} ? 'お気に入り解除' : 'お気に入り登録'">
+			</button>
+		</form>
 
 	</div>
 

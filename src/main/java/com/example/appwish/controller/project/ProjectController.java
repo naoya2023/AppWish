@@ -178,10 +178,7 @@ public class ProjectController {
 		String username = authentication.getName();
 		return userService.findByUsername(username);
 	}
-	//    private User getCurrentUser() {
-	//        // Logic to retrieve current user (e.g., from security context)
-	//        return new User(); // Placeholder
-	//    }
+
 
 	private boolean isAuthorized(User user, Project project) {
 		return user != null && project.getCreatedBy() != null &&
@@ -224,25 +221,11 @@ public class ProjectController {
 	public String showUploadForm(@PathVariable Long id, Model model) {
 		Project project = projectService.getProjectById(id);
 		User currentUser = getCurrentUser();
-		//        if (!isAuthorized(currentUser, project)) {
-		//            return "redirect:/projects/" + id + "?error=unauthorized";
-		//        }
+
 		model.addAttribute("project", project);
 		return "project/upload";
 	}
 
-	//    @GetMapping("/{id}/artifacts")
-	//    public String listArtifacts(@PathVariable Long id, Model model) {
-	//        Project project = projectService.getProjectById(id);
-	//        List<ProjectArtifact> artifacts = projectService.getProjectArtifacts(project);
-	//        User currentUser = getCurrentUser();
-	//        
-	//        model.addAttribute("project", project);
-	//        model.addAttribute("artifacts", artifacts);
-	//        model.addAttribute("isAuthorized", isAuthorized(currentUser, project));
-	//        
-	//        return "project/artifacts";
-	//    }
 
 	@GetMapping("/{projectId}/artifacts/{artifactId}")
 	public String artifactDetails(@PathVariable Long projectId, @PathVariable Long artifactId, Model model) {
@@ -293,22 +276,22 @@ public class ProjectController {
 
 
 
-	
-	@PostMapping("/{id}/favorite")
-	public String toggleFavorite(@PathVariable Long id, RedirectAttributes redirectAttributes) {
-	    User currentUser = getCurrentUser();
-	    Project project = projectService.getProjectById(id);
-	    
-	    if (project.isFavoritedBy(currentUser)) {
-	        project.removeFavorite(currentUser);
-	    } else {
-	        project.addFavorite(currentUser);
-	    }
-	    
-	    projectService.saveProject(project);
-	    redirectAttributes.addFlashAttribute("message", "お気に入りを更新しました。");
-	    return "redirect:/projects";
-	}
+//	
+//	@PostMapping("/{id}/favorite")
+//	public String toggleFavorite(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+//	    User currentUser = getCurrentUser();
+//	    Project project = projectService.getProjectById(id);
+//	    
+//	    if (project.isFavoritedBy(currentUser)) {
+//	        project.removeFavorite(currentUser);
+//	    } else {
+//	        project.addFavorite(currentUser);
+//	    }
+//	    
+//	    projectService.saveProject(project);
+//	    redirectAttributes.addFlashAttribute("message", "お気に入りを更新しました。");
+//	    return "redirect:/projects";
+//	}
 	
 	@GetMapping("/{id}/artifacts")
 	public String listArtifacts(@PathVariable Long id, Model model) {
@@ -339,12 +322,47 @@ public class ProjectController {
 	    return ResponseEntity.ok(response);
 	}
 
-	@GetMapping("/favorites")
-	public String listFavoriteArtifacts(Model model) {
+
+//	@GetMapping("/favorites")
+//	public String listFavorites(Model model) {
+//	    User currentUser = getCurrentUser();
+//	    List<Project> favoriteProjects = projectService.getFavoriteProjects(currentUser);
+//	    List<ProjectArtifact> favoriteArtifacts = projectService.getFavoriteArtifacts(currentUser);
+//	    
+//	    model.addAttribute("favoriteProjects", favoriteProjects);
+//	    model.addAttribute("favoriteArtifacts", favoriteArtifacts);
+//	    return "project/favoriteProject";
+//	}
+	
+	@PostMapping("/{id}/favorite")
+	public String toggleFavorite(@PathVariable Long id, RedirectAttributes redirectAttributes) {
 	    User currentUser = getCurrentUser();
+	    Project project = projectService.getProjectById(id);
+	    boolean isFavorited = projectService.toggleFavorite(project, currentUser);
+	    
+	    String message = isFavorited ? "プロジェクトをお気に入りに追加しました。" : "プロジェクトをお気に入りから削除しました。";
+	    redirectAttributes.addFlashAttribute("message", message);
+	    
+	    return "redirect:/projects/" + id;
+	}
+//
+//	@GetMapping("/favorites")
+//	public String listFavorites(Model model) {
+//	    User currentUser = getCurrentUser();
+//	    List<Project> favoriteProjects = projectService.getFavoriteProjects(currentUser);
+//	    model.addAttribute("favoriteProjects", favoriteProjects);
+//	    return "project/favoriteProject";
+//	}
+	
+	@GetMapping("/favorites")
+	public String listFavorites(Model model) {
+	    User currentUser = getCurrentUser();
+	    List<Project> favoriteProjects = projectService.getFavoriteProjects(currentUser);
 	    List<ProjectArtifact> favoriteArtifacts = projectService.getFavoriteArtifacts(currentUser);
+	    
+	    model.addAttribute("favoriteProjects", favoriteProjects);
 	    model.addAttribute("favoriteArtifacts", favoriteArtifacts);
-	    return "project/favoriteArtifacts";
+	    return "project/favoriteProject";
 	}
 
 }

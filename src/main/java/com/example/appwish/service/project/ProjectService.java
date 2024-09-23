@@ -92,7 +92,36 @@ public class ProjectService {
         return artifact.isFavoritedBy(user);
     }
 
+//    public List<ProjectArtifact> getFavoriteArtifacts(User user) {
+//        return projectArtifactRepository.findByFavoritedByContaining(user);
+//    }
+    
+//    public List<Project> getFavoriteProjects(User user) {
+//        return projectRepository.findByFavoritedByContaining(user);
+//    }
+//    
     public List<ProjectArtifact> getFavoriteArtifacts(User user) {
-        return projectArtifactRepository.findByFavoritedByContaining(user);
+        List<ProjectArtifact> artifacts = projectArtifactRepository.findByFavoritedByContaining(user);
+        for (ProjectArtifact artifact : artifacts) {
+            artifact.getProject().getTitle(); // This will force the loading of the project
+        }
+        return artifacts;
     }
+    
+    @Transactional
+    public boolean toggleFavorite(Project project, User user) {
+        if (project.isFavoritedBy(user)) {
+            project.removeFavorite(user);
+            return false;
+        } else {
+            project.addFavorite(user);
+            return true;
+        }
+    }
+
+    public List<Project> getFavoriteProjects(User user) {
+        return projectRepository.findByFavoritedByContaining(user);
+    }
+
+
 }

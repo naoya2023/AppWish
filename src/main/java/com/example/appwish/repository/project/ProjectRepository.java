@@ -15,4 +15,5 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
     List<Project> findByCategory(ProjectCategory category);
     List<Project> findByTitleContainingOrDescriptionContainingAndCategory(String title, String description, ProjectCategory category);
     List<Project> findByCreatedBy(User user);
+    List<Project> findByFavoritedByContaining(User user);
 }
