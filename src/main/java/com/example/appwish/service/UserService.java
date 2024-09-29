@@ -43,10 +43,10 @@ public class UserService {
     // User registration and management methods
 
     public User registerUser(User user) {
-        if (userRepository.existsByUsername(user.getUsername())) {
+        if (isUsernameTaken(user.getUsername())) {
             throw new RuntimeException("Username already exists");
         }
-        if (userRepository.existsByEmail(user.getEmail())) {
+        if (isEmailTaken(user.getEmail())) {
             throw new RuntimeException("Email already exists");
         }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
@@ -58,6 +58,14 @@ public class UserService {
     public User updateUser(User user) {
         User existingUser = userRepository.findById(user.getId())
                 .orElseThrow(() -> new RuntimeException("ユーザーが見つかりません"));
+        
+        if (!existingUser.getUsername().equals(user.getUsername()) && isUsernameTaken(user.getUsername())) {
+            throw new RuntimeException("Username already exists");
+        }
+        if (!existingUser.getEmail().equals(user.getEmail()) && isEmailTaken(user.getEmail())) {
+            throw new RuntimeException("Email already exists");
+        }
+        
         existingUser.setUsername(user.getUsername());
         existingUser.setEmail(user.getEmail());
         existingUser.setUserType(user.getUserType());
@@ -67,13 +75,20 @@ public class UserService {
         existingUser.setUpdatedAt(LocalDateTime.now());
         return userRepository.save(existingUser);
     }
-
-    public void deleteUser(Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        user.markAsDeleted();
-        userRepository.save(user);
+    
+    @Transactional(readOnly = true)
+    public boolean isUsernameTaken(String username) {
+        return userRepository.existsByUsername(username);
     }
+
+    @Transactional(readOnly = true)
+    public boolean isEmailTaken(String email) {
+        return userRepository.existsByEmail(email);
+    }
+
+    
+
+  
 
     // User retrieval methods
 

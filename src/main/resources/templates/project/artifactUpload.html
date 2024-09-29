@@ -4,7 +4,7 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>AppWish - アーティファクト詳細</title>
+	<title>AppWish - 試作品</title>
 	<style>
 		body {
 			font-family: Arial, sans-serif;
@@ -111,6 +111,34 @@
 		.account-menu:hover .dropdown-content {
 			display: block;
 		}
+
+		.comment-section {
+			margin-top: 20px;
+			border-top: 1px solid #ddd;
+			padding-top: 20px;
+		}
+
+		.comment-list {
+			list-style-type: none;
+			padding: 0;
+		}
+
+		.comment-item {
+			background-color: #f0f0f0;
+			margin-bottom: 10px;
+			padding: 10px;
+			border-radius: 4px;
+		}
+
+		.comment-form {
+			margin-top: 20px;
+		}
+
+		.comment-form textarea {
+			width: 100%;
+			padding: 10px;
+			margin-bottom: 10px;
+		}
 	</style>
 </head>
 
@@ -136,20 +164,88 @@
 		</div>
 	</header>
 	<div class="container">
-		<h1>アーティファクト詳細</h1>
+		<h1>試作品詳細</h1>
 
 		<div class="artifact-details">
 			<h2 th:text="${artifact.description}"></h2>
-			<p><strong>ファイル名:</strong> <span th:text="${artifact.filename}"></span></p>
+			<div th:if="${artifact.filename != null and !artifact.filename.isEmpty()}">
+				<p><strong>ファイル名:</strong>
+					<span th:with="fileName=${#strings.contains(artifact.filename, '_') ? 
+                     #strings.substringAfter(artifact.filename, '_') : 
+                     artifact.filename}">
+						<span th:text="${#strings.length(fileName) > 20 ? 
+                         #strings.substring(fileName, 0, 17) + '...' : 
+                         fileName}"></span>
+						<span th:if="${#strings.length(fileName) > 20}" th:title="${fileName}"
+							class="filename-tooltip">(フルネームを表示)</span>
+					</span>
+				</p>
+				<a th:href="@{/projects/download/{id}(id=${artifact.id})}" class="btn">ダウンロード</a>
+			</div>
 			<p><strong>アップロード日時:</strong> <span
 					th:text="${#temporals.format(artifact.uploadedAt, 'yyyy-MM-dd HH:mm')}"></span></p>
 			<p><strong>アップロードユーザー:</strong> <span th:text="${artifact.uploadedBy.username}"></span></p>
-
-			<a th:href="@{/projects/download/{id}(id=${artifact.id})}" class="btn">ダウンロード</a>
 		</div>
 
-		<a th:href="@{/projects/{id}/artifacts(id=${project.id})}" class="back-link">アーティファクト一覧に戻る</a>
+		<div class="comment-section">
+			<h2>コメント</h2>
+			<ul id="comment-list" class="comment-list">
+				<li th:each="comment : ${artifact.comments}" class="comment-item">
+					<strong th:text="${comment.user.username}">ユーザー名</strong>
+					<p th:text="${comment.content}">コメント内容</p>
+					<small th:text="${#temporals.format(comment.createdAt, 'yyyy-MM-dd HH:mm')}">日時</small>
+				</li>
+			</ul>
+			<div class="comment-form">
+				<textarea id="comment-input" placeholder="コメントを入力..."></textarea>
+				<button class="btn" onclick="addComment()">コメントを投稿</button>
+			</div>
+			<input type="hidden" id="projectId" th:value="${project.id}">
+		</div>
+
+
+		<a th:href="@{/projects/{id}/artifacts(id=${project.id})}" class="back-link">試作品一覧に戻る</a>
 	</div>
+
+	<script th:inline="javascript">
+		function addComment() {
+			const commentInput = document.getElementById('comment-input');
+			const commentText = commentInput.value.trim();
+			if (commentText) {
+				const artifactId = /*[[${artifact.id}]]*/ null;
+				const projectId = document.getElementById('projectId').value;
+				const csrfToken = /*[[${_csrf.token}]]*/ '';
+				const csrfHeader = /*[[${_csrf.headerName}]]*/ 'X-CSRF-TOKEN';
+				const currentUsername = /*[[${#authentication.name}]]*/ 'Anonymous';
+
+				fetch(`/projects/artifacts/${artifactId}/comment`, {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+						[csrfHeader]: csrfToken
+					},
+					body: JSON.stringify({
+						content: commentText,
+						projectId: projectId
+					})
+				})
+					.then(response => response.json())
+					.then(data => {
+						const commentList = document.getElementById('comment-list');
+						const commentItem = document.createElement('li');
+						commentItem.className = 'comment-item';
+						commentItem.innerHTML = `
+                    <strong>${currentUsername}</strong>
+                    <p>${data.content}</p>
+                    <small>${new Date(data.createdAt).toLocaleString()}</small>
+                `;
+						commentList.insertBefore(commentItem, commentList.firstChild);
+						commentInput.value = '';
+					})
+					.catch(error => console.error('Error:', error));
+			}
+		}
+	</script>
 </body>
 
 </html>

@@ -233,8 +233,6 @@
         <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
         <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
         
-		<div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
-		<div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
 		<div th:each="conversation : ${conversations}" class="conversation-item"
 			th:classappend="${conversation.groupChat ? 'group-chat' : ''} + ${conversation.hasUnread ? ' unread' : ''}">
 			

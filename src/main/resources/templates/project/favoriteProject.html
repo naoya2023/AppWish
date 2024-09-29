@@ -133,127 +133,165 @@
 		.account-menu:hover .dropdown-content {
 			display: block;
 		}
-		
-		 .favorite-list {
-            list-style-type: none;
-            padding: 0;
-        }
-        .favorite-item {
-            background-color: #f9f9f9;
-            margin-bottom: 10px;
-            padding: 15px;
-            border-radius: 4px;
-        }
+
+		.favorite-list {
+			list-style-type: none;
+			padding: 0;
+		}
+
+		.favorite-item {
+			background-color: #f9f9f9;
+			margin-bottom: 10px;
+			padding: 15px;
+			border-radius: 4px;
+		}
+
+		.favorite-btn {
+			background-color: #007bff;
+			color: white;
+			transition: background-color 0.3s, color 0.3s;
+		}
+
+		.favorite-btn:hover {
+			background-color: #0056b3;
+		}
+
+		.favorite-btn.favorited {
+			background-color: #28a745;
+		}
+
+		.favorite-btn.favorited:hover {
+			background-color: #218838;
+		}
 	</style>
 </head>
 
 
 <body>
-    <header class="header">
-        <a href="/" class="logo">AppWish</a>
-        <div class="account-menu" th:if="${#authorization.expression('isAuthenticated()')}">
-            <button class="account-btn" th:text="${#authentication.name}">アカウント</button>
-            <div class="dropdown-content">
-                <a th:href="@{/users/profile}">プロフィール</a>
-                <a th:href="@{/messages/chatrelate}">チャット関連</a>
-                <a th:href="@{/projects/projectsrelate}">プロジェクト関連</a>
-                <a th:href="@{/projects/favorites}">お気に入り</a>
-                <a th:href="@{/logout}">ログアウト</a>
-            </div>
-        </div>
-        <div class="account-menu" th:unless="${#authorization.expression('isAuthenticated()')}">
-            <a th:href="@{/login}" class="btn">ログイン</a>
-            <a th:href="@{/users/register}" class="btn">新規登録</a>
-        </div>
-    </header>
+	<header class="header">
+		<a href="/" class="logo">AppWish</a>
+		<div class="account-menu" th:if="${#authorization.expression('isAuthenticated()')}">
+			<button class="account-btn" th:text="${#authentication.name}">アカウント</button>
+			<div class="dropdown-content">
+				<a th:href="@{/users/profile}">プロフィール</a>
+				<a th:href="@{/messages/chatrelate}">チャット関連</a>
+				<a th:href="@{/projects/projectsrelate}">プロジェクト関連</a>
+				<a th:href="@{/projects/favorites}">お気に入り</a>
+				<a th:href="@{/logout}">ログアウト</a>
+			</div>
+		</div>
+		<div class="account-menu" th:unless="${#authorization.expression('isAuthenticated()')}">
+			<a th:href="@{/login}" class="btn">ログイン</a>
+			<a th:href="@{/users/register}" class="btn">新規登録</a>
+		</div>
+	</header>
 
-    <div class="container">
-        <h1>お気に入りリスト</h1>
+	<div class="container">
+		<h1>お気に入りリスト</h1>
 
-        <div class="favorite-section">
-            <h2>お気に入りプロジェクト</h2>
-            <div th:if="${favoriteProjects.empty}">
-                <p>お気に入りのプロジェクトはありません。</p>
-            </div>
-            <ul th:unless="${favoriteProjects.empty}" class="favorite-list">
-                <li th:each="project : ${favoriteProjects}" class="favorite-item">
-                    <div class="favorite-info">
-                        <h3 th:text="${project.title}"></h3>
-                        <p th:text="${project.description}"></p>
-                        <p><strong>カテゴリ:</strong> <span th:text="${project.category.displayName}"></span></p>
-                        <p><strong>ステータス:</strong> <span th:text="${project.status.displayName}"></span></p>
-                    </div>
-                    <div class="favorite-actions">
-                        <a th:href="@{/projects/{id}(id=${project.id})}" class="btn">詳細を見る</a>
-                        <button class="btn favorite-btn" th:data-project-id="${project.id}">お気に入り解除</button>
-                    </div>
-                </li>
-            </ul>
-        </div>
+		<div class="favorite-section">
+			<h2>お気に入りプロジェクト</h2>
+			<div th:if="${favoriteProjects.empty}">
+				<p>お気に入りのプロジェクトはありません。</p>
+			</div>
+			<ul th:unless="${favoriteProjects.empty}" class="">
+				<li th:each="project : ${favoriteProjects}" class="favorite-item">
+					<div class="favorite-info">
+						<h3 th:text="${project.title}"></h3>
+						<p th:text="${project.description}"></p>
+						<p><strong>カテゴリ:</strong> <span th:text="${project.category.displayName}"></span></p>
+						<p><strong>ステータス:</strong> <span th:text="${project.status.displayName}"></span></p>
+					</div>
+					<div class="favorite-actions">
+						<a th:href="@{/projects/{id}(id=${project.id})}" class="btn">詳細を見る</a>
 
-        <div class="favorite-section">
-            <h2>お気に入り完成品/試作品</h2>
-            <div th:if="${favoriteArtifacts.empty}">
-                <p>お気に入りの完成品/試作品はありません。</p>
-            </div>
-            <ul th:unless="${favoriteArtifacts.empty}" class="favorite-list">
-                <li th:each="artifact : ${favoriteArtifacts}" class="favorite-item">
-                    <div class="favorite-info">
-                        <h3 th:text="${artifact.description}"></h3>
-                        <p><strong>プロジェクト:</strong> <span th:text="${artifact.project.title}"></span></p>
-                        <p><strong>アップロード日時:</strong> <span th:text="${#temporals.format(artifact.uploadedAt, 'yyyy-MM-dd HH:mm')}"></span></p>
-                    </div>
-                    <div class="favorite-actions">
-                        <a th:href="@{/projects/{projectId}/artifacts/{artifactId}(projectId=${artifact.project.id},artifactId=${artifact.id})}" class="btn">詳細</a>
-                        <a th:href="@{/projects/download/{id}(id=${artifact.id})}" class="btn">ダウンロード</a>
-                        <button class="btn favorite-btn" th:data-artifact-id="${artifact.id}">お気に入り解除</button>
-                    </div>
-                </li>
-            </ul>
-        </div>
+						<button class="btn favorite-btn favorited" th:data-id="${project.id}" th:data-type="project"
+							th:data-is-favorite="true">
+							お気に入り解除
+						</button>
+					</div>
+				</li>
+			</ul>
+		</div>
 
-        <a th:href="@{/projects}" class="back-link">プロジェクト一覧に戻る</a>
-    </div>
+		<div class="favorite-section">
+			<h2>お気に入り試作品</h2>
+			<div th:if="${favoriteArtifacts.empty}">
+				<p>お気に入りの試作品はありません。</p>
+			</div>
+			<ul th:unless="${favoriteArtifacts.empty}" class="favorite-list">
+				<li th:each="artifact : ${favoriteArtifacts}" class="favorite-item">
+					<div class="favorite-info">
+						<h3 th:text="${artifact.description}"></h3>
+						<p><strong>プロジェクト:</strong> <span th:text="${artifact.project.title}"></span></p>
+						<p><strong>アップロード日時:</strong> <span
+								th:text="${#temporals.format(artifact.uploadedAt, 'yyyy-MM-dd HH:mm')}"></span></p>
+					</div>
+					<div class="favorite-actions">
+						<a th:href="@{/projects/{projectId}/artifacts/{artifactId}(projectId=${artifact.project.id},artifactId=${artifact.id})}"
+							class="btn">詳細</a>
+						<a th:href="@{/projects/download/{id}(id=${artifact.id})}" class="btn">ダウンロード</a>
+						<button class="btn favorite-btn favorited" th:data-id="${artifact.id}" th:data-type="artifact"
+							th:data-is-favorite="true">
+							お気に入り解除
+						</button>
+					</div>
+				</li>
+			</ul>
+		</div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const favoriteButtons = document.querySelectorAll('.favorite-btn');
-            const csrfToken = document.querySelector('meta[name="_csrf"]');
-            const csrfHeader = document.querySelector('meta[name="_csrf_header"]');
+		<a th:href="@{/projects}" class="back-link">プロジェクト一覧に戻る</a>
+	</div>
 
-            favoriteButtons.forEach(button => {
-                button.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    const projectId = this.getAttribute('data-project-id');
-                    const artifactId = this.getAttribute('data-artifact-id');
-                    const url = projectId ? `/projects/${projectId}/favorite` : `/projects/artifacts/${artifactId}/favorite`;
+	<script>
+		document.addEventListener('DOMContentLoaded', function () {
+			const favoriteButtons = document.querySelectorAll('.favorite-btn');
+			const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+			const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
 
-                    const headers = new Headers({
-                        'Content-Type': 'application/json',
-                    });
+			favoriteButtons.forEach(button => {
+				button.addEventListener('click', function (e) {
+					e.preventDefault();
+					const id = this.getAttribute('data-id');
+					const type = this.getAttribute('data-type');
+					const url = type === 'project' ? `/projects/projects/${id}/favorite` : `/projects/artifacts/${id}/favorite`;
 
-                    if (csrfToken && csrfHeader) {
-                        headers.append(csrfHeader.content, csrfToken.content);
-                    }
+					fetch(url, {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json',
+							[csrfHeader]: csrfToken
+						}
+					})
+						.then(response => response.json())
+						.then(data => {
+							if (data.success) {
+								// Remove the item from the list
+								const listItem = this.closest('.favorite-item');
+								const favoriteSection = listItem.closest('.favorite-section');
+								listItem.remove();
 
-                    fetch(url, {
-                        method: 'POST',
-                        headers: headers
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            this.closest('.favorite-item').remove();
-                            if (this.closest('.favorite-list').children.length === 0) {
-                                this.closest('.favorite-section').innerHTML = '<p>お気に入りのアイテムはありません。</p>';
-                            }
-                        }
-                    })
-                    .catch(error => console.error('Error:', error));
-                });
-            });
-        });
-    </script>
+								// Check if the list is empty after removal
+								const remainingItems = favoriteSection.querySelectorAll('.favorite-item');
+								if (remainingItems.length === 0) {
+									const emptyMessage = document.createElement('p');
+									emptyMessage.textContent = type === 'project' ? 'お気に入りのプロジェクトはありません。' : 'お気に入りの試作品はありません。';
+
+									// Remove existing content and add the empty message
+									const contentToReplace = favoriteSection.querySelector('ul') || favoriteSection.querySelector('div');
+									if (contentToReplace) {
+										contentToReplace.replaceWith(emptyMessage);
+									} else {
+										favoriteSection.appendChild(emptyMessage);
+									}
+								}
+							}
+						})
+						.catch(error => console.error('Error:', error));
+				});
+			});
+		});
+	</script>
 </body>
 
 </html>

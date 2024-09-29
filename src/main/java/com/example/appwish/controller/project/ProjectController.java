@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -26,6 +27,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.example.appwish.model.User;
 import com.example.appwish.model.message.Message;
+import com.example.appwish.model.project.ArtifactComment;
 import com.example.appwish.model.project.Project;
 import com.example.appwish.model.project.ProjectArtifact;
 import com.example.appwish.model.project.ProjectCategory;
@@ -236,6 +238,20 @@ public class ProjectController {
         redirectAttributes.addFlashAttribute("message", message);
         return "redirect:/projects/" + id;
     }
+    
+    @PostMapping("/projects/{id}/favorite")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> toggleProjectFavorite(@PathVariable Long id, Authentication authentication) {
+        User currentUser = getCurrentUser(authentication);
+        Project project = projectService.getProjectById(id);
+        boolean isFavorited = projectService.toggleFavorite(project, currentUser);
+        
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
+        response.put("isFavorited", isFavorited);
+        return ResponseEntity.ok(response);
+    }
+    
 
     @GetMapping("/{id}/chat")
     public String projectChat(@PathVariable Long id, Model model, Authentication authentication) {
@@ -282,27 +298,36 @@ public class ProjectController {
         return "project/artifactUpload";
     }
 
+
     @PostMapping("/{id}/upload")
-    public String handleFileUpload(@PathVariable Long id,
-                                   @RequestParam("file") MultipartFile file,
+    public String handleFileUpload(@PathVariable Long id, 
+                                   @RequestParam("title") String title,
                                    @RequestParam("description") String description,
+                                   @RequestParam(value = "file", required = false) MultipartFile file,
                                    RedirectAttributes redirectAttributes,
                                    Authentication authentication) {
         try {
             Project project = projectService.getProjectById(id);
             User currentUser = getCurrentUser(authentication);
-            String filename = storageService.store(file);
+            
             ProjectArtifact artifact = new ProjectArtifact();
             artifact.setProject(project);
-            artifact.setFilename(filename);
+            artifact.setTitle(title);
             artifact.setDescription(description);
             artifact.setUploadedBy(currentUser);
             artifact.setUploadedAt(LocalDateTime.now());
+            
+            if (file != null && !file.isEmpty()) {
+                String filename = storageService.store(file);
+                artifact.setFilename(filename);
+            }
+            
             project.addArtifact(artifact);
             projectService.saveProject(project);
-            redirectAttributes.addFlashAttribute("message", "ファイルが正常にアップロードされました。");
+            
+            redirectAttributes.addFlashAttribute("message", "試作品が正常にアップロードされました。");
         } catch (IOException e) {
-            redirectAttributes.addFlashAttribute("error", "ファイルのアップロードに失敗しました: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("error", "アップロードに失敗しました: " + e.getMessage());
         }
         return "redirect:/projects/" + id + "/artifacts";
     }
@@ -326,4 +351,28 @@ public class ProjectController {
     private boolean isAuthorized(User user, Project project) {
         return user != null && project.getCreatedBy() != null && user.getId().equals(project.getCreatedBy().getId());
     }
+    
+
+    
+
+    @PostMapping("/artifacts/{artifactId}/comment")
+    @ResponseBody
+    public ResponseEntity<?> addComment(@PathVariable Long artifactId, 
+                                        @RequestBody Map<String, String> payload,
+                                        Authentication authentication) {
+        User currentUser = getCurrentUser(authentication);
+        String content = payload.get("content");
+        Long projectId = Long.parseLong(payload.get("projectId"));
+        ArtifactComment comment = projectService.addCommentToArtifact(artifactId, projectId, content, currentUser);
+        
+        Map<String, Object> response = new HashMap<>();
+        response.put("id", comment.getId());
+        response.put("content", comment.getContent());
+        response.put("createdAt", comment.getCreatedAt());
+        response.put("username", comment.getUser().getUsername());
+        
+        return ResponseEntity.ok(response);
+    }
+    
+    
 }

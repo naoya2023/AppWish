@@ -186,4 +186,9 @@ public class Project {
         this.imageUrl = imageUrl;
     }
     
+
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ArtifactComment> comments = new ArrayList<>();
+
+    
 }

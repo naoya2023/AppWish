@@ -15,7 +15,7 @@
 		}
 
 		.container {
-			max-width: 1000px;
+			max-width: 1800px;
 			margin: auto;
 			background: white;
 			padding: 20px;
@@ -258,10 +258,10 @@
 		<!-- オープンチャットへの遷移ボタン -->
 		<a th:href="@{/projects/{id}/chat(id=${project.id})}" class="btn">プロジェクトチャットを開く</a>
 		<!-- アップロードボタンを追加 -->
-		<a th:href="@{/projects/{id}/upload(id=${project.id})}" class="btn">完成品/試作品をアップロード</a>
+		<a th:href="@{/projects/{id}/upload(id=${project.id})}" class="btn">試作品をアップロード</a>
 
 		<!-- プロジェクト詳細ページの適切な位置に以下のリンクを追加 -->
-		<a th:href="@{/projects/{id}/artifacts(id=${project.id})}" class="btn">完成品/試作品一覧を見る</a>
+		<a th:href="@{/projects/{id}/artifacts(id=${project.id})}" class="btn">試作品一覧を見る</a>
 
 		<form th:action="@{/projects/{id}/favorite(id=${project.id})}" method="post">
 			<button type="submit" class="btn favorite-btn"

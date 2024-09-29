@@ -4,7 +4,7 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>AppWish - プロジェクト完成品/試作品一覧</title>
+	<title>AppWish - プロジェクト試作品一覧</title>
 	<meta name="_csrf" th:content="${_csrf.token}" />
 	<meta name="_csrf_header" th:content="${_csrf.headerName}" />
 	<style>
@@ -160,6 +160,8 @@
 		.favorite-btn.favorited:hover {
 			background-color: #218838;
 		}
+		
+		
 	</style>
 </head>
 
@@ -185,7 +187,7 @@
 		</div>
 	</header>
 	<div class="container">
-		<h1 th:text="${project.title} + ' - 完成品/試作品一覧'"></h1>
+		<h1 th:text="${project.title} + ' - 試作品一覧'"></h1>
 
 		<div th:if="${artifacts.empty}">
 			<p>まだ完成品/試作品がアップロードされていません。</p>
@@ -200,7 +202,8 @@
 				<div class="artifact-actions">
 					<a th:href="@{/projects/{projectId}/artifacts/{artifactId}(projectId=${project.id},artifactId=${artifact.id})}"
 						class="btn">詳細</a>
-					<a th:href="@{/projects/download/{id}(id=${artifact.id})}" class="btn">ダウンロード</a>
+					<a th:if="${artifact.filename != null and !artifact.filename.isEmpty()}"
+						th:href="@{/projects/download/{id}(id=${artifact.id})}" class="btn">ダウンロード</a>
 					<button class="btn favorite-btn"
 						th:classappend="${projectService.isFavorited(artifact.id, currentUser)} ? 'favorited' : ''"
 						th:data-artifact-id="${artifact.id}"

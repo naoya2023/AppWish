@@ -13,7 +13,7 @@
             background-color: #f4f4f4;
         }
         .container {
-            max-width: 600px;
+            max-width: 1800px;
             margin: auto;
             background: white;
             padding: 20px;
@@ -54,6 +54,12 @@
 <body>
     <div class="container">
         <h1>登録情報確認</h1>
+        
+        <!-- エラーメッセージ表示領域 -->
+        <div th:if="${errorMessage}" class="error-message" style="color: red; margin-bottom: 15px;">
+            <p th:text="${errorMessage}"></p>
+        </div>
+
         <div class="info-item">
             <span class="label">ユーザー名:</span>
             <span class="value" th:text="${user.username}"></span>
@@ -64,7 +70,7 @@
         </div>
         <div class="info-item">
             <span class="label">ユーザータイプ:</span>
-            <span class="value" th:text="${user.userType == 'ENGINEER' ? 'エンジニア' : 'アイデア提供者'}"></span>
+            <span class="value" th:text="${user.userType.toString() == 'ENGINEER' ? 'エンジニア' : 'アイデア提供者'}"></span>
         </div>
         <div class="buttons">
             <a href="#" th:href="@{/users/register}" class="btn btn-secondary">修正する</a>
@@ -73,7 +79,7 @@
                 <input type="hidden" name="email" th:value="${user.email}" />
                 <input type="hidden" name="password" th:value="${user.password}" />
                 <input type="hidden" name="userType" th:value="${user.userType}" />
-                <button type="submit" class="btn">登録する</button>
+                <button type="submit" class="btn" th:disabled="${errorMessage != null}">登録する</button>
             </form>
         </div>
     </div>

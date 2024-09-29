@@ -15,7 +15,7 @@
 		}
 
 		.container {
-			max-width: 500px;
+			max-width: 1000px;
 			margin: auto;
 			background: white;
 			padding: 20px;
@@ -142,6 +142,59 @@
 		.account-menu:hover .dropdown-content {
 			display: block;
 		}
+
+		.search-form {
+			display: flex;
+			margin-bottom: 20px;
+			align-items: stretch;
+			/* 変更: 子要素を縦に引き伸ばす */
+		}
+
+		.search-form input[type="text"],
+		.search-form select,
+		.search-form button {
+			height: 38px;
+			box-sizing: border-box;
+			font-size: 14px;
+			/* 追加: フォントサイズを統一 */
+		}
+
+		.search-form input[type="text"],
+		.search-form select {
+			flex-grow: 1;
+			margin-right: 10px;
+			padding: 8px;
+			border: 1px solid #ddd;
+			border-radius: 4px;
+		}
+
+		.search-form-button {
+			background-color: #007bff;
+			color: white;
+			margin-top: 0px;
+			border: none;
+			border-radius: 4px;
+			cursor: pointer;
+			white-space: nowrap;
+			/* 追加: ボタンテキストを1行に */
+		}
+
+		.search-form button:hover {
+			background-color: #0056b3;
+		}
+
+		.search-form button:hover {
+			background-color: #0056b3;
+		}
+
+		#searchResults {
+			max-height: 200px;
+			overflow-y: auto;
+			border: 1px solid #ddd;
+			padding: 10px;
+			margin-bottom: 20px;
+			display: none;
+		}
 	</style>
 </head>
 
@@ -153,10 +206,10 @@
 			<div class="dropdown-content">
 				<a th:href="@{/users/profile}">プロフィール</a>
 				<a th:href="@{/messages/chatrelate}">チャット関連</a>
-				
-				
+
+
 				<a th:href="@{/projects/projectsrelate}">プロジェクト関連</a>
-				
+
 				<a th:href="@{/projects/favorites}">お気に入り</a>
 				<a th:href="@{/logout}">ログアウト</a>
 			</div>
@@ -169,16 +222,32 @@
 
 	<div class="container">
 		<h1>グループチャット作成</h1>
-		<form th:action="@{/messages/group/create}" method="post">
+		<form th:action="@{/messages/group/create}" method="post" id="groupChatForm">
 			<label for="groupName">グループ名:</label>
 			<input type="text" id="groupName" name="groupName" required>
 
 			<h2>メンバー選択</h2>
-			<div class="user-list">
+
+			<!-- 検索フォーム -->
+			<div class="search-form">
+				<input type="text" id="keyword" placeholder="ユーザー名で検索">
+				<select id="userType">
+					<option value="">すべてのユーザータイプ</option>
+					<option value="ENGINEER">エンジニア</option>
+					<option value="IDEA_PROVIDER">アイデア提供者</option>
+				</select>
+				<button type="button" class="search-form-button" onclick="searchUsers()">検索</button>
+			</div>
+
+			<!-- 検索結果表示エリア -->
+			<div id="searchResults"></div>
+
+			<div class="user-list" id="userList">
 				<div th:each="user : ${users}" class="user-item">
 					<label>
 						<input type="checkbox" name="memberIds" th:value="${user.id}">
 						<span th:text="${user.username}"></span>
+						<span th:text="'(' + ${user.userType} + ')'" style="color: #666; font-size: 0.8em;"></span>
 					</label>
 				</div>
 			</div>
@@ -186,6 +255,69 @@
 		</form>
 		<a th:href="@{/messages/list}" class="back-link">メッセージ一覧に戻る</a>
 	</div>
+
+	<script th:inline="javascript">
+		/*<![CDATA[*/
+		var allUsers = /*[[${users}]]*/[];
+
+		function searchUsers() {
+			var keyword = document.getElementById('keyword').value.toLowerCase();
+			var userType = document.getElementById('userType').value;
+
+			var filteredUsers = allUsers.filter(function (user) {
+				return user.username.toLowerCase().includes(keyword) &&
+					(userType === '' || user.userType === userType);
+			});
+
+			var searchResults = document.getElementById('searchResults');
+			searchResults.innerHTML = '';
+			searchResults.style.display = 'block';
+
+			if (filteredUsers.length === 0) {
+				searchResults.innerHTML = '<p>該当するユーザーが見つかりません。</p>';
+			} else {
+				filteredUsers.forEach(function (user) {
+					var div = document.createElement('div');
+					div.className = 'user-item';
+					div.innerHTML = `
+                    <label>
+                        <input type="checkbox" name="memberIds" value="${user.id}">
+                        <span>${user.username}</span>
+                        <span style="color: #666; font-size: 0.8em;">(${user.userType})</span>
+                    </label>
+                `;
+					searchResults.appendChild(div);
+				});
+			}
+
+			// 元のユーザーリストを非表示にする
+			document.getElementById('userList').style.display = 'none';
+		}
+
+		// フォームのデフォルト送信を防ぐ
+		document.getElementById('groupChatForm').addEventListener('submit', function (event) {
+			if (event.target.id === 'keyword' || event.target.id === 'userType') {
+				event.preventDefault();
+				searchUsers();
+			}
+		});
+
+		// エンターキーが押されたときに検索を実行
+		document.getElementById('keyword').addEventListener('keypress', function (event) {
+			if (event.key === 'Enter') {
+				event.preventDefault();
+				searchUsers();
+			}
+		});
+
+		document.getElementById('userType').addEventListener('keypress', function (event) {
+			if (event.key === 'Enter') {
+				event.preventDefault();
+				searchUsers();
+			}
+		});
+		/*]]>*/
+	</script>
 </body>
 
 </html>

@@ -20,6 +20,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.example.appwish.model.User;
 import com.example.appwish.model.project.Project;
+import com.example.appwish.model.project.ProjectCategory;
 import com.example.appwish.service.UserService;
 import com.example.appwish.service.project.ProjectService;
 
@@ -39,22 +40,63 @@ public class UserController {
         model.addAttribute("user", new User());
         return "register";
     }
-    
-    @PostMapping("/register/confirm")
-    public String confirmRegistration(@ModelAttribute("user") User user, Model model) {
-        model.addAttribute("user", user);
-        return "registerConfirm";
+
+    @PostMapping("/register")
+    public String registerUser(@Valid @ModelAttribute("user") User user, 
+                               BindingResult bindingResult, 
+                               @RequestParam String confirmPassword, 
+                               Model model) {
+        if (bindingResult.hasErrors()) {
+            return "register";
+        }
+
+        if (!user.getPassword().equals(confirmPassword)) {
+            model.addAttribute("errorMessage", "パスワードと確認用パスワードが一致しません。");
+            return "register";
+        }
+
+        try {
+            // ユーザー名の重複チェック
+            if (userService.isUsernameTaken(user.getUsername())) {
+                model.addAttribute("errorMessage", "このユーザー名は既に使用されています。");
+                return "register";
+            }
+            
+            // メールアドレスの重複チェック
+            if (userService.isEmailTaken(user.getEmail())) {
+                model.addAttribute("errorMessage", "このメールアドレスは既に登録されています。");
+                return "register";
+            }
+
+            userService.registerUser(user);
+            return "redirect:/users/register/complete";
+        } catch (Exception e) {
+            model.addAttribute("errorMessage", "登録に失敗しました: " + e.getMessage());
+            return "register";
+        }
     }
 
     @PostMapping("/register/complete")
-    public String registerUser(@ModelAttribute("user") User user, RedirectAttributes redirectAttributes) {
+    public String registerUser(@ModelAttribute("user") User user, Model model, RedirectAttributes redirectAttributes) {
         try {
+            // ユーザー名の重複チェック
+            if (userService.isUsernameTaken(user.getUsername())) {
+                model.addAttribute("errorMessage", "このユーザー名は既に使用されています。");
+                return "registerConfirm";
+            }
+            
+            // メールアドレスの重複チェック
+            if (userService.isEmailTaken(user.getEmail())) {
+                model.addAttribute("errorMessage", "このメールアドレスは既に登録されています。");
+                return "registerConfirm";
+            }
+
             userService.registerUser(user);
             redirectAttributes.addFlashAttribute("message", "ユーザー登録が完了しました。");
             return "redirect:/users/register/complete";
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "登録に失敗しました: " + e.getMessage());
-            return "redirect:/users/register";
+            model.addAttribute("errorMessage", "登録に失敗しました: " + e.getMessage());
+            return "registerConfirm";
         }
     }
 
@@ -64,17 +106,23 @@ public class UserController {
     }
 
     @GetMapping("/profile")
-    public String showProfile(Model model, Authentication authentication) {
+    public String showProfile(@RequestParam(required = false) String keyword,
+                              @RequestParam(required = false) ProjectCategory category,
+                              Model model, 
+                              Authentication authentication) {
         if (authentication != null) {
             String username = authentication.getName();
             User user = userService.findByUsername(username);
-            List<Project> projects = userService.getProjectsByUser(user);
+            List<Project> projects = projectService.getProjectsByUser(user, keyword, category);
             model.addAttribute("user", user);
             model.addAttribute("projects", projects);
+            model.addAttribute("keyword", keyword);
+            model.addAttribute("selectedCategory", category);
             return "user/profile";
         }
         return "redirect:/login";
     }
+    
 
     @GetMapping("/edit/{username}")
     public String showEditForm(@PathVariable String username, Model model) {

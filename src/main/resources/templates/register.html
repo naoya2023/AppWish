@@ -14,7 +14,7 @@
             background-color: #f4f4f4;
         }
         .container {
-            max-width: 500px;
+            max-width: 1800px;
             margin: auto;
             background: white;
             padding: 20px;
@@ -56,9 +56,13 @@
     </style>
 </head>
 <body>
+    <body>
     <div class="container">
         <h1>AppWish 新規登録</h1>
-        <form th:action="@{/users/register/confirm}" th:object="${user}" method="post">
+        <form th:action="@{/users/register}" th:object="${user}" method="post">
+            <div th:if="${errorMessage}" class="error">
+                <p th:text="${errorMessage}"></p>
+            </div>
             <div th:if="${#fields.hasErrors('*')}" class="error">
                 <p>入力エラーがあります。以下を確認してください：</p>
                 <ul>

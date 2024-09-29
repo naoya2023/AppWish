@@ -1,11 +1,14 @@
 package com.example.appwish.model.project;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import com.example.appwish.model.User;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -16,6 +19,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Data;
 
@@ -32,6 +36,9 @@ public class ProjectArtifact {
     private Project project;
 
     @Column(nullable = false)
+    private String title;
+
+    @Column
     private String filename;
 
     @Column(nullable = false)
@@ -52,6 +59,9 @@ public class ProjectArtifact {
     )
     private Set<User> favoritedBy = new HashSet<>();
     
+    @OneToMany(mappedBy = "artifact", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ArtifactComment> comments = new ArrayList<>();
+
     public void addFavorite(User user) {
         favoritedBy.add(user);
     }
@@ -63,11 +73,14 @@ public class ProjectArtifact {
     public boolean isFavoritedBy(User user) {
         return favoritedBy.contains(user);
     }
-    public Project getProject() {
-        return project;
+
+    public void addComment(ArtifactComment comment) {
+        comments.add(comment);
+        comment.setArtifact(this);
     }
 
-    public void setProject(Project project) {
-        this.project = project;
+    public void removeComment(ArtifactComment comment) {
+        comments.remove(comment);
+        comment.setArtifact(null);
     }
 }
