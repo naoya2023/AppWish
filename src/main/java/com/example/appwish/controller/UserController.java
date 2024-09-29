@@ -1,8 +1,11 @@
 package com.example.appwish.controller;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -12,6 +15,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.example.appwish.model.User;
@@ -121,4 +125,53 @@ public class UserController {
             return userService.getCurrentUser(authentication);
         }
     }
+    
+
+    @Autowired
+    private JavaMailSender mailSender;
+
+    @Value("${app.url}")
+    private String appUrl;
+
+    @GetMapping("/passwordforget")
+    public String passwordForget() {
+        return "passwordForget";
+    }
+    
+    @PostMapping("/passwordforget")
+    public String processForgotPassword(@RequestParam("email") String email, RedirectAttributes redirectAttributes) {
+        try {
+            userService.sendPasswordResetEmail(email);
+            redirectAttributes.addFlashAttribute("success", "パスワードリセットのメールを送信しました。メールをご確認ください。");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "メールの送信に失敗しました: " + e.getMessage());
+        }
+        return "redirect:/users/passwordforget";
+    }
+    
+    @GetMapping("/reset-password")
+    public String showResetPasswordForm(@RequestParam("token") String token, Model model) {
+        User user = userService.findByPasswordResetToken(token);
+        if (user == null || user.getPasswordResetTokenExpiryDate().isBefore(LocalDateTime.now())) {
+            model.addAttribute("error", "無効または期限切れのトークンです。");
+            return "passwordReset";
+        }
+        model.addAttribute("token", token);
+        return "passwordReset";
+    }
+
+    @PostMapping("/reset-password")
+    public String processResetPassword(@RequestParam("token") String token,
+                                       @RequestParam("password") String password,
+                                       RedirectAttributes redirectAttributes) {
+        try {
+            userService.resetPassword(token, password);
+            redirectAttributes.addFlashAttribute("success", "パスワードが正常にリセットされました。");
+            return "redirect:/login";
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "パスワードのリセットに失敗しました: " + e.getMessage());
+            return "redirect:/users/reset-password?token=" + token;
+        }
+    }
+    
 }

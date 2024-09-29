@@ -5,7 +5,7 @@ import com.example.appwish.model.message.GroupChat;
 import com.example.appwish.model.message.Message;
 
 public class ConversationPreview {
-    private Long id;
+	private Long id;
     private String name;
     private User otherUser;
     private Message lastMessage;
@@ -14,6 +14,7 @@ public class ConversationPreview {
 
     // 個人チャット用のコンストラクタ
     public ConversationPreview(User otherUser, Message lastMessage, boolean hasUnread) {
+        this.id = otherUser.getId();
         this.otherUser = otherUser;
         this.lastMessage = lastMessage;
         this.hasUnread = hasUnread;
@@ -76,6 +77,10 @@ public class ConversationPreview {
 
     public void setGroupChat(boolean groupChat) {
         isGroupChat = groupChat;
+    }
+    
+    public String getConversationKey() {
+        return isGroupChat ? "group_" + id : "user_" + id;
     }
     
     

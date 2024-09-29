@@ -12,6 +12,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @EntityScan(basePackages ="com.example.appwish.model")
 
 @SpringBootApplication
+//@EnableWebSecurity
 public class AppWishApplication {
     public static void main(String[] args) {
         SpringApplication.run(AppWishApplication.class, args);

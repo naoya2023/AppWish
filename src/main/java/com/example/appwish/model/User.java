@@ -94,4 +94,12 @@ public class User {
         ENGINEER,
         IDEA_PROVIDER
     }
+    
+    @Column(name = "password_reset_token")
+    private String passwordResetToken;
+
+    @Column(name = "password_reset_token_expiry_date")
+    private LocalDateTime passwordResetTokenExpiryDate;
+    
+    
 }

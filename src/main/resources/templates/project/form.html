@@ -15,7 +15,7 @@
 		}
 
 		.container {
-			max-width: 800px;
+			max-width: 1000px;
 			margin: auto;
 			background: white;
 			padding: 20px;
@@ -129,6 +129,71 @@
 		.account-menu:hover .dropdown-content {
 			display: block;
 		}
+
+		.image-preview {
+			max-width: 300px;
+			max-height: 300px;
+			margin-top: 10px;
+		}
+
+		.form-group {
+			margin-bottom: 20px;
+		}
+
+		.form-group label {
+			display: block;
+			margin-bottom: 5px;
+			font-weight: bold;
+		}
+
+		.form-control {
+			width: 100%;
+			padding: 8px;
+			border: 1px solid #ddd;
+			border-radius: 4px;
+			box-sizing: border-box;
+		}
+
+		.image-upload {
+			display: flex;
+			align-items: center;
+			margin-bottom: 20px;
+		}
+
+		.image-preview {
+			max-width: 200px;
+			max-height: 200px;
+			margin-top: 10px;
+			display: none;
+		}
+
+		.file-input-wrapper {
+			position: relative;
+			overflow: hidden;
+			display: inline-block;
+		}
+
+		.file-input-wrapper input[type=file] {
+			font-size: 100px;
+			position: absolute;
+			left: 0;
+			top: 0;
+			opacity: 0;
+		}
+
+		.file-input-wrapper .btn {
+			display: inline-block;
+			padding: 8px 12px;
+			background-color: #007bff;
+			color: white;
+			border: none;
+			border-radius: 4px;
+			cursor: pointer;
+		}
+
+		.file-input-wrapper .btn:hover {
+			background-color: #0056b3;
+		}
 	</style>
 </head>
 
@@ -143,14 +208,14 @@
 
 
 				<a th:href="@{/projects/projectsrelate}">プロジェクト関連</a>
-				
+
 				<a th:href="@{/projects/favorites}">お気に入り</a>
 				<a th:href="@{/logout}">ログアウト</a>
 			</div>
 		</div>
 		<div class="account-menu" th:unless="${#authorization.expression('isAuthenticated()')}">
 			<a th:href="@{/login}" class="btn">ログイン</a>
-			<a th:href="@{/register}" class="btn">新規登録</a>
+			<a th:href="@{/users/register}" class="btn">新規登録</a>
 		</div>
 	</header>
 
@@ -158,8 +223,11 @@
 		<h1 th:text="${project.id == null ? 'プロジェクト作成' : 'プロジェクト編集'}"></h1>
 
 		<form th:action="@{${project.id == null ? '/projects/create' : '/projects/edit/' + project.id}}" method="post"
-			th:object="${project}">
+			th:object="${project}" enctype="multipart/form-data">
+			<!--              <form th:action="@{${project.id == null ? '/projects/create' : '/projects/edit/' + project.id}}" method="post" enctype="multipart/form-data" th:object="${project}">-->
 			<input type="hidden" th:field="*{id}" />
+
+
 
 			<div class="form-group">
 				<label for="title">タイトル：</label>
@@ -184,6 +252,22 @@
 					<option value="both" selected>両方</option>
 				</select>
 			</div>
+
+			<div class="form-group">
+				<label for="projectImage">プロジェクト画像：</label>
+				<div class="image-upload">
+					<img th:if="${project.imageUrl}" th:src="${project.imageUrl}" alt="Current Project Image"
+						class="image-preview" id="imagePreview">
+					<img th:unless="${project.imageUrl}" src="" alt="" class="image-preview" id="imagePreview">
+					<div class="file-input-wrapper">
+						<button type="button" class="btn">画像を選択</button>
+						<input type="file" name="projectImage" id="projectImage" accept="image/*"
+							onchange="previewImage(this);">
+					</div>
+				</div>
+			</div>
+
+
 
 			<div id="structured-form">
 				<div class="form-group">
@@ -238,7 +322,7 @@
 				</div>
 			</div>
 
-			<div id="freeform-input" style="display:none;">
+			<div id="freeform-input">
 				<div class="form-group">
 					<label for="freeformIdea">自由にアイデアを記述してください：</label>
 					<textarea id="freeformIdea" th:field="*{freeformIdea}" rows="10"
@@ -272,6 +356,24 @@
 					break;
 			}
 		}
+
+		function previewImage(input) {
+			var preview = document.getElementById('imagePreview');
+			if (input.files && input.files[0]) {
+				var reader = new FileReader();
+				reader.onload = function (e) {
+					preview.src = e.target.result;
+					preview.style.display = 'block';
+				}
+				reader.readAsDataURL(input.files[0]);
+			} else {
+				preview.src = "#";
+				preview.style.display = 'none';
+			}
+		}
+
+
+
 	</script>
 </body>
 

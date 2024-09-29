@@ -15,7 +15,7 @@
 		}
 
 		.container {
-			max-width: 800px;
+			max-width: 1000px;
 			margin: auto;
 			background: white;
 			padding: 20px;
@@ -27,6 +27,21 @@
 			color: #333;
 			text-align: center;
 		}
+		
+		.btn {
+			display: inline-block;
+			background: #007bff;
+			color: white;
+			padding: 10px 15px;
+			text-decoration: none;
+			font-size: 17px;
+			border-radius: 5px;
+			margin-right: 10px;
+			margin-top: 20px;
+			border: none;
+			cursor: pointer;
+		}
+
 
 		.project-details {
 			margin-top: 20px;
@@ -47,19 +62,7 @@
 			color: #666;
 		}
 
-		.btn {
-			display: inline-block;
-			background: #007bff;
-			color: white;
-			padding: 10px 15px;
-			text-decoration: none;
-			border-radius: 5px;
-			margin-right: 10px;
-		}
 
-		.btn:hover {
-			background: #0056b3;
-		}
 
 		.back-link {
 			display: block;
@@ -128,18 +131,7 @@
 			display: block;
 		}
 
-		.btn {
-			display: inline-block;
-			background: #007bff;
-			color: white;
-			padding: 10px 15px;
-			text-decoration: none;
-			border-radius: 5px;
-			margin-right: 10px;
-			margin-top: 20px;
-			border: none;
-			cursor: pointer;
-		}
+
 
 		.btn:hover {
 			background: #0056b3;
@@ -151,6 +143,32 @@
 
 		.favorite-btn:hover {
 			background-color: #218838;
+		}
+
+
+		.project-actions {
+			margin-top: 20px;
+		}
+
+
+		
+
+		.btn-edit {
+			background-color: #007bff;
+			color: white;
+		}
+
+		.btn-edit:hover {
+			background-color: #0056b3;
+		}
+
+		.btn-delete {
+			background-color: #dc3545;
+			color: white;
+		}
+
+		.btn-delete:hover {
+			background-color: #c82333;
 		}
 	</style>
 </head>
@@ -173,7 +191,7 @@
 		</div>
 		<div class="account-menu" th:unless="${#authorization.expression('isAuthenticated()')}">
 			<a th:href="@{/login}" class="btn">ログイン</a>
-			<a th:href="@{/register}" class="btn">新規登録</a>
+			<a th:href="@{/users/register}" class="btn">新規登録</a>
 		</div>
 	</header>
 
@@ -182,47 +200,54 @@
 
 		<div class="project-details">
 			<div class="project-title" th:text="${project.title}"></div>
-			<div class="project-description" th:text="${project.description}"></div>
-			<div class="project-info">
-				<p>カテゴリ: <span th:text="${project.category.displayName}"></span></p>
-				<p>ステータス: <span th:text="${project.status.displayName}"></span></p>
-				<p>作成日: <span th:text="${#temporals.format(project.createdAt, 'yyyy-MM-dd HH:mm')}"></span></p>
-				<p>更新日: <span th:text="${#temporals.format(project.updatedAt, 'yyyy-MM-dd HH:mm')}"></span></p>
-				<p>作成者: <span th:text="${creatorUsername}"></span></p>
-			</div>
+			<div class="project-description" th:if="${!#strings.isEmpty(project.description)}"
+				th:text="${project.description}"></div>
+
 
 			<!-- 構造化テキストの部分 -->
 			<div th:if="${project.inputType != 'freeform'}">
 				<h2>アイデアの詳細</h2>
-				<p><strong>アイデア:</strong> <span th:text="${project.ideaSeed}"></span></p>
-				<p><strong>課題:</strong> <span th:text="${project.problem}"></span></p>
-				<p><strong>理想の状況:</strong> <span th:text="${project.idealSituation}"></span></p>
-				<p><strong>現在の対処法:</strong> <span th:text="${project.currentSolution}"></span></p>
-				<p><strong>ユーザーストーリー:</strong> <span th:text="${project.userStory}"></span></p>
-				<p><strong>感情的なつながり:</strong> <span th:text="${project.emotionalConnection}"></span></p>
+				<p th:if="${!#strings.isEmpty(project.ideaSeed)}"><strong>アイデア:</strong> <span
+						th:text="${project.ideaSeed}"></span></p>
+				<p th:if="${!#strings.isEmpty(project.problem)}"><strong>課題:</strong> <span
+						th:text="${project.problem}"></span></p>
+				<p th:if="${!#strings.isEmpty(project.idealSituation)}"><strong>理想の状況:</strong> <span
+						th:text="${project.idealSituation}"></span></p>
+				<p th:if="${!#strings.isEmpty(project.currentSolution)}"><strong>現在の対処法:</strong> <span
+						th:text="${project.currentSolution}"></span></p>
+				<p th:if="${!#strings.isEmpty(project.userStory)}"><strong>ユーザーストーリー:</strong> <span
+						th:text="${project.userStory}"></span></p>
+				<p th:if="${!#strings.isEmpty(project.emotionalConnection)}"><strong>感情的なつながり:</strong> <span
+						th:text="${project.emotionalConnection}"></span></p>
 
-				<h3>重要機能</h3>
-				<ul>
-					<li th:each="feature : ${project.keyFeatures}" th:text="${feature}"></li>
+				<h3 th:if="${!#lists.isEmpty(project.keyFeatures)}">重要機能</h3>
+				<ul th:if="${!#lists.isEmpty(project.keyFeatures)}">
+					<li th:each="feature : ${project.keyFeatures}" th:if="${!#strings.isEmpty(feature)}"
+						th:text="${feature}"></li>
 				</ul>
 
-				<p><strong>使いやすさのポイント:</strong> <span th:text="${project.usabilityPoint}"></span></p>
-				<p><strong>将来の可能性:</strong> <span th:text="${project.futurePossibility}"></span></p>
-				<p><strong>魅力的なポイント:</strong> <span th:text="${project.appealPoint}"></span></p>
+				<p th:if="${!#strings.isEmpty(project.usabilityPoint)}"><strong>使いやすさのポイント:</strong> <span
+						th:text="${project.usabilityPoint}"></span></p>
+				<p th:if="${!#strings.isEmpty(project.futurePossibility)}"><strong>将来の可能性:</strong> <span
+						th:text="${project.futurePossibility}"></span></p>
+				<p th:if="${!#strings.isEmpty(project.appealPoint)}"><strong>魅力的なポイント:</strong> <span
+						th:text="${project.appealPoint}"></span></p>
 			</div>
 
 			<!-- 自由記述アイデア -->
-			<div th:if="${project.inputType != 'structured'}">
+			<div th:if="${project.inputType != 'structured' and !#strings.isEmpty(project.freeformIdea)}">
 				<h3>自由記述アイデア</h3>
 				<p th:text="${project.freeformIdea}"></p>
 			</div>
 		</div>
 
+
 		<!-- 編集・削除ボタン -->
-		<div th:if="${currentUser != null and project.createdBy != null and currentUser.id == project.createdBy.id}">
-			<a th:href="@{/projects/edit/{id}(id=${project.id})}" class="btn">編集</a>
+		<div class="project-actions"
+			th:if="${currentUser != null and project.createdBy != null and currentUser.id == project.createdBy.id}">
+			<a th:href="@{/projects/edit/{id}(id=${project.id})}" class="btn btn-edit">編集</a>
 			<form th:action="@{/projects/delete/{id}(id=${project.id})}" method="post" style="display: inline;">
-				<button type="submit" class="btn" onclick="return confirm('本当に削除しますか？');">削除</button>
+				<button type="submit" class="btn btn-delete" onclick="return confirm('本当に削除しますか？');">削除</button>
 			</form>
 		</div>
 		<div
@@ -244,7 +269,20 @@
 			</button>
 		</form>
 
+
+		<div class="project-info">
+			<p th:if="${project.category != null}">カテゴリ: <span th:text="${project.category.displayName}"></span></p>
+			<p th:if="${project.status != null}">ステータス: <span th:text="${project.status.displayName}"></span></p>
+			<p th:if="${project.createdAt != null}">作成日: <span
+					th:text="${#temporals.format(project.createdAt, 'yyyy-MM-dd HH:mm')}"></span></p>
+			<p th:if="${project.updatedAt != null}">更新日: <span
+					th:text="${#temporals.format(project.updatedAt, 'yyyy-MM-dd HH:mm')}"></span></p>
+			<p th:if="${!#strings.isEmpty(creatorUsername)}">作成者: <span th:text="${creatorUsername}"></span></p>
+		</div>
+
 	</div>
+
+
 
 
 	<a th:href="@{/projects}" class="back-link">プロジェクト一覧に戻る</a>

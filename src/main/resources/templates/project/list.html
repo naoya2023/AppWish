@@ -15,7 +15,7 @@
 		}
 
 		.container {
-			max-width: 800px;
+			max-width: 1800px;
 			margin: auto;
 			background: white;
 			padding: 20px;
@@ -55,26 +55,68 @@
 			background-color: #0056b3;
 		}
 
-		.project-list {
-			list-style-type: none;
-			padding: 0;
+
+		.project-grid {
+			display: grid;
+			grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+			/* 列の幅を小さくして数を増やす */
+			gap: 15px;
+			/* 間隔を少し狭める */
+		}
+
+		h1 {
+			color: #333;
+			text-align: center;
+			margin-bottom: 20px;
+			/* タイトルの下に余白を追加 */
 		}
 
 		.project-item {
 			background-color: #f9f9f9;
-			margin-bottom: 10px;
-			padding: 15px;
 			border-radius: 4px;
+			overflow: hidden;
+			box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+			transition: transform 0.3s ease;
+			display: flex;
+			flex-direction: column;
+		}
+
+		.project-item:hover {
+			transform: translateY(-5px);
+		}
+
+		.project-image {
+			width: 100%;
+			height: 200px;
+			object-fit: cover;
+		}
+
+		.project-content {
+			padding: 20px;
+			flex-grow: 1;
+			display: flex;
+			flex-direction: column;
 		}
 
 		.project-title {
 			font-size: 1.2em;
 			color: #007bff;
+			margin-bottom: 10px;
 		}
 
 		.project-description {
-			margin-top: 5px;
+			font-size: 0.9em;
+			color: #666;
+			margin-bottom: 10px;
+			flex-grow: 1;
 		}
+
+		.project-meta {
+			font-size: 0.8em;
+			color: #888;
+			margin-top: auto;
+		}
+
 
 		.project-link {
 			display: inline-block;
@@ -86,7 +128,6 @@
 		.project-link:hover {
 			text-decoration: underline;
 		}
-
 		.back-link {
 			display: block;
 			text-align: center;
@@ -149,6 +190,44 @@
 		.account-menu:hover .dropdown-content {
 			display: block;
 		}
+
+		.project-image-placeholder {
+			width: 100%;
+			height: 200px;
+			background-color: greenyellow;
+			/* プレースホルダーの色 */
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			color: greenyellow;
+			font-size: 1.2em;
+		}
+		.search-form {
+            display: flex;
+            margin-bottom: 20px;
+        }
+
+        .search-form input[type="text"],
+        .search-form select {
+            flex-grow: 1;
+            margin-right: 10px;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .search-form button {
+            background-color: #007bff;
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .search-form button:hover {
+            background-color: #0056b3;
+        }
 	</style>
 </head>
 
@@ -160,52 +239,66 @@
 			<div class="dropdown-content">
 				<a th:href="@{/users/profile}">プロフィール</a>
 				<a th:href="@{/messages/chatrelate}">チャット関連</a>
-				
-				
+
+
 				<a th:href="@{/projects/projectsrelate}">プロジェクト関連</a>
-				
+
 				<a th:href="@{/projects/favorites}">お気に入り</a>
 				<a th:href="@{/logout}">ログアウト</a>
 			</div>
 		</div>
 		<div class="account-menu" th:unless="${#authorization.expression('isAuthenticated()')}">
 			<a th:href="@{/login}" class="btn">ログイン</a>
-			<a th:href="@{/register}" class="btn">新規登録</a>
+			<a th:href="@{/users/register}" class="btn">新規登録</a>
 		</div>
 	</header>
 
 
 	<div class="container">
+		<!-- ... 検索フォームと新規プロジェクト作成リンクは変更なし ... -->
 		<h1>プロジェクト一覧</h1>
+		
+		 <form class="search-form" th:action="@{/projects}" method="get">
+            <input type="text" name="keyword" th:value="${keyword}" placeholder="キーワードを入力">
+            <select name="category">
+                <option value="">すべてのカテゴリ</option>
+                <option th:each="cat : ${T(com.example.appwish.model.project.ProjectCategory).values()}"
+                        th:value="${cat}" 
+                        th:text="${cat.displayName}" 
+                        th:selected="${cat == selectedCategory}"></option>
+            </select>
+            <button type="submit">検索</button>
+        </form>
 
-		<form class="search-form" th:action="@{/projects}" method="get">
-			<input type="text" name="keyword" th:value="${keyword}" placeholder="キーワードを入力">
-			<select name="category">
-				<option value="">すべてのカテゴリ</option>
-				<option th:each="cat : ${T(com.example.appwish.model.project.ProjectCategory).values()}"
-					th:value="${cat}" th:text="${cat.displayName}" th:selected="${cat == selectedCategory}"></option>
-			</select>
-			<button type="submit">検索</button>
-		</form>
+        <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
+        <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
 
-		<a th:href="@{/projects/create}" class="project-link">新規プロジェクト作成</a>
-
-		<ul class="project-list">
-			<li th:each="project : ${projects}" class="project-item">
-				<div class="project-title" th:text="${project.title}"></div>
-				<div class="project-description" th:text="${project.description}"></div>
-				<div>カテゴリ: <span th:text="${project.category.displayName}"></span></div>
-				<div>ステータス: <span th:text="${project.status.displayName}"></span></div>
-				<!--                <div>アイデア提供者: <span th:text="${project.ideaProvider != null ? project.ideaProvider.username : '未設定'}"></span></div>-->
-				<div>作成者: <span th:text="${project.createdBy != null ? project.createdBy.username : '未設定'}"></span>
-				<div>ひとこと: <span th:text="${project.appealPoint}"></span></div>
+		<div class="project-grid">
+			<div th:each="project : ${projects}" class="project-item">
+				<div th:if="${project.imageUrl}" class="project-image-container">
+					<img th:src="@{${project.imageUrl}}" alt="Project Image" class="project-image">
 				</div>
-				<a class="project-link" th:href="@{/projects/{id}(id=${project.id})}">詳細を見る</a>
-			</li>
-		</ul>
+				<div th:unless="${project.imageUrl}" class="project-image-placeholder">
+					
+				</div>
+				<div class="project-content">
+					<div class="project-title" th:text="${project.title}"></div>
+					<div class="project-description" th:text="${#strings.abbreviate(project.description, 100)}"></div>
+					<div class="project-meta">
+						<div>カテゴリ: <span th:text="${project.category.displayName}"></span></div>
+						<div>ステータス: <span th:text="${project.status.displayName}"></span></div>
+						<div>作成者: <span
+								th:text="${project.createdBy != null ? project.createdBy.username : '未設定'}"></span>
+						</div>
+					</div>
+					<a class="project-link" th:href="@{/projects/{id}(id=${project.id})}">詳細を見る</a>
+				</div>
+			</div>
+		</div>
 
 		<a th:href="@{/users/profile}" class="back-link">プロフィールに戻る</a>
 	</div>
+
 
 	<script>
 		// ドロップダウンメニューの表示/非表示を切り替えるJavaScript（オプション）

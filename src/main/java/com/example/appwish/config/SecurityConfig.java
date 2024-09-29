@@ -22,8 +22,9 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .authorizeHttpRequests(requests -> requests
-                .requestMatchers("/", "/home", "/users/register", "/users/register/confirm", "/users/register/complete", "/projects/create").permitAll()
+        .authorizeHttpRequests(requests -> requests
+                .requestMatchers("/", "/home", "/users/register", "/users/register/confirm", "/users/register/complete", "/projects", "users/passwordforget", "/users/reset-password").permitAll()
+                .requestMatchers("/images/**", "/js/**", "/webjars/**").permitAll() // 静的リソースを許可
                 .requestMatchers("/ws/**").authenticated()
                 .anyRequest().authenticated()
             )

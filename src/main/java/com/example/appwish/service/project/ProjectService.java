@@ -25,9 +25,21 @@ public class ProjectService {
         this.projectRepository = projectRepository;
         this.projectArtifactRepository = projectArtifactRepository;
     }
-
-    public List<Project> getAllProjects() {
+    
+     public List<Project> getAllProjects() {
         return projectRepository.findAll();
+    }
+
+    public List<Project> getProjects(String keyword, ProjectCategory category) {
+        if (keyword != null && !keyword.isEmpty() && category != null) {
+            return projectRepository.findByTitleContainingOrDescriptionContainingAndCategory(keyword, keyword, category);
+        } else if (keyword != null && !keyword.isEmpty()) {
+            return projectRepository.findByTitleContainingOrDescriptionContaining(keyword, keyword);
+        } else if (category != null) {
+            return projectRepository.findByCategory(category);
+        } else {
+            return projectRepository.findAll();
+        }
     }
 
     public List<Project> searchProjects(String keyword) {

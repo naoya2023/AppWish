@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AppWish - お気に入り完成品/試作品一覧</title>
+    <style>
+        /* 既存のスタイルをここにコピー */
+        /* ... */
+
+        .empty-message {
+            text-align: center;
+            margin-top: 20px;
+            font-style: italic;
+            color: #666;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header">
+        <a href="/" class="logo">AppWish</a>
+        <div class="account-menu" th:if="${#authorization.expression('isAuthenticated()')}">
+            <button class="account-btn" th:text="${#authentication.name}">アカウント</button>
+            <div class="dropdown-content">
+                <a th:href="@{/users/profile}">プロフィール</a>
+                <a th:href="@{/messages/chatrelate}">チャット関連</a>
+                <a th:href="@{/projects/projectsrelate}">プロジェクト関連</a>
+                <a th:href="@{/projects/favorites}">お気に入り</a>
+                <a th:href="@{/logout}">ログアウト</a>
+            </div>
+        </div>
+        <div class="account-menu" th:unless="${#authorization.expression('isAuthenticated()')}">
+            <a th:href="@{/login}" class="btn">ログイン</a>
+            <a th:href="@{/users/register}" class="btn">新規登録</a>
+        </div>
+    </header>
+    <div class="container">
+        <h1>お気に入り完成品/試作品一覧</h1>
+
+        <div th:if="${favoriteArtifacts.empty}" class="empty-message">
+            <p>お気に入りに登録された完成品/試作品はありません。</p>
+        </div>
+        <ul th:unless="${favoriteArtifacts.empty}" class="artifact-list">
+            <li th:each="artifact : ${favoriteArtifacts}" class="artifact-item">
+                <div class="artifact-info">
+                    <h2 th:text="${artifact.description}"></h2>
+                    <p><strong>プロジェクト:</strong> <span th:text="${artifact.project.title}"></span></p>
+                    <p><strong>アップロード日時:</strong> <span
+                            th:text="${#temporals.format(artifact.uploadedAt, 'yyyy-MM-dd HH:mm')}"></span></p>
+                </div>
+                <div class="artifact-actions">
+                    <a th:href="@{/projects/{projectId}/artifacts/{artifactId}(projectId=${artifact.project.id},artifactId=${artifact.id})}"
+                        class="btn">詳細</a>
+                    <a th:href="@{/projects/download/{id}(id=${artifact.id})}" class="btn">ダウンロード</a>
+                    <button class="btn favorite-btn favorited"
+                        th:data-artifact-id="${artifact.id}">
+                        お気に入り解除
+                    </button>
+                </div>
+            </li>
+        </ul>
+
+        <a th:href="@{/projects}" class="back-link">プロジェクト一覧に戻る</a>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const favoriteButtons = document.querySelectorAll('.favorite-btn');
+            favoriteButtons.forEach(button => {
+                button.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const artifactId = this.getAttribute('data-artifact-id');
+                    fetch(`/projects/artifacts/${artifactId}/favorite`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="_csrf"]').getAttribute('content')
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Remove the artifact from the list
+                            this.closest('.artifact-item').remove();
+                            // Check if the list is empty after removal
+                            if (document.querySelectorAll('.artifact-item').length === 0) {
+                                const emptyMessage = document.createElement('div');
+                                emptyMessage.className = 'empty-message';
+                                emptyMessage.innerHTML = '<p>お気に入りに登録された完成品/試作品はありません。</p>';
+                                document.querySelector('.container').appendChild(emptyMessage);
+                            }
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>

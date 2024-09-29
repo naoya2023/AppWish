@@ -15,7 +15,7 @@
         }
 
         .container {
-            max-width: 800px;
+            max-width: 1000px;
             margin: auto;
             background: white;
             padding: 20px;
@@ -132,7 +132,7 @@
         </div>
         <div class="account-menu" th:unless="${#authorization.expression('isAuthenticated()')}">
             <a th:href="@{/login}" class="btn">ログイン</a>
-            <a th:href="@{/register}" class="btn">新規登録</a>
+            <a th:href="@{/users/register}" class="btn">新規登録</a>
         </div>
     </header>
 

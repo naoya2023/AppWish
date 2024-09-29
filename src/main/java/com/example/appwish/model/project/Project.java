@@ -174,4 +174,16 @@ public class Project {
         return favoritedBy.contains(user);
     }
     
+    @Column(name = "image_url")
+    private String imageUrl;
+
+    // getter and setter
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+    
 }
