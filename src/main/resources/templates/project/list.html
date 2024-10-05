@@ -128,6 +128,7 @@
 		.project-link:hover {
 			text-decoration: underline;
 		}
+
 		.back-link {
 			display: block;
 			text-align: center;
@@ -202,32 +203,56 @@
 			color: greenyellow;
 			font-size: 1.2em;
 		}
+
 		.search-form {
-            display: flex;
-            margin-bottom: 20px;
-        }
+			display: flex;
+			margin-bottom: 20px;
+		}
 
-        .search-form input[type="text"],
-        .search-form select {
-            flex-grow: 1;
-            margin-right: 10px;
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
+		.search-form input[type="text"],
+		.search-form select {
+			flex-grow: 1;
+			margin-right: 10px;
+			padding: 8px;
+			border: 1px solid #ddd;
+			border-radius: 4px;
+		}
 
-        .search-form button {
-            background-color: #007bff;
-            color: white;
-            padding: 8px 15px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
+		.search-form button {
+			background-color: #007bff;
+			color: white;
+			padding: 8px 15px;
+			border: none;
+			border-radius: 4px;
+			cursor: pointer;
+		}
 
-        .search-form button:hover {
-            background-color: #0056b3;
-        }
+		.search-form button:hover {
+			background-color: #0056b3;
+		}
+
+		.alert {
+			padding: 15px;
+			margin-bottom: 20px;
+			border: 1px solid transparent;
+			border-radius: 4px;
+		}
+
+		.alert-success {
+			color: #155724;
+			background-color: #d4edda;
+			border-color: #c3e6cb;
+		}
+
+		.alert-danger {
+			color: #721c24;
+			background-color: #f8d7da;
+			border-color: #f5c6cb;
+		}
+
+		.alert-container {
+			margin-bottom: 20px;
+		}
 	</style>
 </head>
 
@@ -257,21 +282,21 @@
 	<div class="container">
 		<!-- ... 検索フォームと新規プロジェクト作成リンクは変更なし ... -->
 		<h1>プロジェクト一覧</h1>
-		
-		 <form class="search-form" th:action="@{/projects}" method="get">
-            <input type="text" name="keyword" th:value="${keyword}" placeholder="キーワードを入力">
-            <select name="category">
-                <option value="">すべてのカテゴリ</option>
-                <option th:each="cat : ${T(com.example.appwish.model.project.ProjectCategory).values()}"
-                        th:value="${cat}" 
-                        th:text="${cat.displayName}" 
-                        th:selected="${cat == selectedCategory}"></option>
-            </select>
-            <button type="submit">検索</button>
-        </form>
 
-        <div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
-        <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+		<form class="search-form" th:action="@{/projects}" method="get">
+			<input type="text" name="keyword" th:value="${keyword}" placeholder="キーワードを入力">
+			<select name="category">
+				<option value="">すべてのカテゴリ</option>
+				<option th:each="cat : ${T(com.example.appwish.model.project.ProjectCategory).values()}"
+					th:value="${cat}" th:text="${cat.displayName}" th:selected="${cat == selectedCategory}"></option>
+			</select>
+			<button type="submit">検索</button>
+		</form>
+
+		<div class="alert-container">
+			<div th:if="${message}" class="alert alert-success" th:text="${message}"></div>
+			<div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+		</div>
 
 		<div class="project-grid">
 			<div th:each="project : ${projects}" class="project-item">
@@ -279,7 +304,7 @@
 					<img th:src="@{${project.imageUrl}}" alt="Project Image" class="project-image">
 				</div>
 				<div th:unless="${project.imageUrl}" class="project-image-placeholder">
-					
+
 				</div>
 				<div class="project-content">
 					<div class="project-title" th:text="${project.title}"></div>

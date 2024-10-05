@@ -142,33 +142,45 @@
 		.account-menu:hover .dropdown-content {
 			display: block;
 		}
-		
-		 .user-search {
-            margin-bottom: 15px;
-        }
-        #userSearchInput {
-            width: 100%;
-            padding: 8px;
-            margin-bottom: 10px;
-        }
-        #userList {
-            list-style-type: none;
-            padding: 0;
-            max-height: 200px;
-            overflow-y: auto;
-            border: 1px solid #ddd;
-        }
-        #userList li {
-            padding: 8px;
-            cursor: pointer;
-        }
-        #userList li:hover {
-            background-color: #f0f0f0;
-        }
-        #selectedUser {
-            margin-top: 10px;
-            font-weight: bold;
-        }
+
+		.user-search {
+			margin-bottom: 15px;
+		}
+
+		#userSearchInput {
+			width: 100%;
+			padding: 8px;
+			margin-bottom: 10px;
+		}
+
+		#userList {
+			list-style-type: none;
+			padding: 0;
+			max-height: 200px;
+			overflow-y: auto;
+			border: 1px solid #ddd;
+		}
+
+		#userList li {
+			padding: 8px;
+			cursor: pointer;
+		}
+
+		#userList li:hover {
+			background-color: #f0f0f0;
+		}
+
+		#selectedUser {
+			margin-top: 10px;
+			font-weight: bold;
+		}
+
+		#userList li.no-results {
+			color: red;
+			font-style: italic;
+			padding: 8px;
+			text-align: center;
+		}
 	</style>
 </head>
 
@@ -181,10 +193,10 @@
 			<div class="dropdown-content">
 				<a th:href="@{/users/profile}">プロフィール</a>
 				<a th:href="@{/messages/chatrelate}">チャット関連</a>
-				
-				
+
+
 				<a th:href="@{/projects/projectsrelate}">プロジェクト関連</a>
-				
+
 				<a th:href="@{/projects/favorites}">お気に入り</a>
 				<a th:href="@{/logout}">ログアウト</a>
 			</div>
@@ -195,52 +207,70 @@
 		</div>
 	</header>
 
-	 <div class="container">
-        <h1>新規チャット開始</h1>
+	<div class="container">
+		<h1>新規チャット開始</h1>
 
-        <form th:action="@{/messages/private/start}" method="post">
-            <div class="user-search">
-                <input type="text" id="userSearchInput" placeholder="ユーザーを検索...">
-                <ul id="userList"></ul>
-                <div id="selectedUser"></div>
-                <input type="hidden" id="recipientId" name="recipientId" required>
-            </div>
-            <textarea name="content" required placeholder="メッセージを入力"></textarea>
-            <button type="submit">個別チャットを開始</button>
-        </form>
-        <a href="/messages/list" class="back-link">メッセージ一覧に戻る</a>
-    </div>
+		<form th:action="@{/messages/private/start}" method="post">
+			<div class="user-search">
+				<input type="text" id="userSearchInput" placeholder="ユーザーを検索...">
+				<ul id="userList"></ul>
+				<div id="selectedUser"></div>
+				<input type="hidden" id="recipientId" name="recipientId" required>
+			</div>
+			<textarea name="content" required placeholder="メッセージを入力"></textarea>
+			<button type="submit" id="submitButton" disabled>個別チャットを開始</button>
+		</form>
+		<a href="/messages/list" class="back-link">メッセージ一覧に戻る</a>
+	</div>
 
-    <script th:inline="javascript">
-        /*<![CDATA[*/
-        var users = /*[[${users}]]*/ [];
-        /*]]>*/
+	<script th:inline="javascript">
+		/*<![CDATA[*/
+		var users = /*[[${users}]]*/[];
+		/*]]>*/
 
-        var userSearchInput = document.getElementById('userSearchInput');
-        var userList = document.getElementById('userList');
-        var selectedUser = document.getElementById('selectedUser');
-        var recipientIdInput = document.getElementById('recipientId');
+		var userSearchInput = document.getElementById('userSearchInput');
+		var userList = document.getElementById('userList');
+		var selectedUser = document.getElementById('selectedUser');
+		var recipientIdInput = document.getElementById('recipientId');
+		var submitButton = document.getElementById('submitButton');
 
-        userSearchInput.addEventListener('input', function() {
-            var searchTerm = this.value.toLowerCase();
-            var filteredUsers = users.filter(function(user) {
-                return user.username.toLowerCase().includes(searchTerm);
-            });
+		userSearchInput.addEventListener('input', function () {
+			var searchTerm = this.value.toLowerCase();
+			var filteredUsers = users.filter(function (user) {
+				return user.username.toLowerCase().includes(searchTerm);
+			});
 
-            userList.innerHTML = '';
-            filteredUsers.forEach(function(user) {
-                var li = document.createElement('li');
-                li.textContent = user.username;
-                li.onclick = function() {
-                    selectedUser.textContent = 'Selected: ' + user.username;
-                    recipientIdInput.value = user.id;
-                    userList.innerHTML = '';
-                    userSearchInput.value = '';
-                };
-                userList.appendChild(li);
-            });
-        });
-    </script>
+			userList.innerHTML = '';
+			if (filteredUsers.length === 0) {
+				var li = document.createElement('li');
+				li.textContent = 'ユーザーが見つかりません';
+				li.className = 'no-results';
+				userList.appendChild(li);
+				submitButton.disabled = true;
+			} else {
+				filteredUsers.forEach(function (user) {
+					var li = document.createElement('li');
+					li.textContent = user.username;
+					li.onclick = function () {
+						selectedUser.textContent = 'Selected: ' + user.username;
+						recipientIdInput.value = user.id;
+						userList.innerHTML = '';
+						userSearchInput.value = '';
+						submitButton.disabled = false;
+					};
+					userList.appendChild(li);
+				});
+			}
+		});
+
+		// フォームのサブミット時にユーザーが選択されているかチェック
+		document.querySelector('form').addEventListener('submit', function (e) {
+			if (!recipientIdInput.value) {
+				e.preventDefault();
+				alert('ユーザーを選択してください。');
+			}
+		});
+	</script>
 </body>
 
 </html>
