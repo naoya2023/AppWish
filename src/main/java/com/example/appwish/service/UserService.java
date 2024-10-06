@@ -55,6 +55,26 @@ public class UserService {
         return userRepository.save(user);
     }
 
+//    public User updateUser(User user) {
+//        User existingUser = userRepository.findById(user.getId())
+//                .orElseThrow(() -> new RuntimeException("ユーザーが見つかりません"));
+//        
+//        if (!existingUser.getUsername().equals(user.getUsername()) && isUsernameTaken(user.getUsername())) {
+//            throw new RuntimeException("Username already exists");
+//        }
+//        if (!existingUser.getEmail().equals(user.getEmail()) && isEmailTaken(user.getEmail())) {
+//            throw new RuntimeException("Email already exists");
+//        }
+//        
+//        existingUser.setUsername(user.getUsername());
+//        existingUser.setEmail(user.getEmail());
+//        existingUser.setUserType(user.getUserType());
+//        if (user.getPassword() != null && !user.getPassword().isEmpty()) {
+//            existingUser.setPassword(passwordEncoder.encode(user.getPassword()));
+//        }
+//        existingUser.setUpdatedAt(LocalDateTime.now());
+//        return userRepository.save(existingUser);
+//    }
     public User updateUser(User user) {
         User existingUser = userRepository.findById(user.getId())
                 .orElseThrow(() -> new RuntimeException("ユーザーが見つかりません"));
@@ -69,12 +89,10 @@ public class UserService {
         existingUser.setUsername(user.getUsername());
         existingUser.setEmail(user.getEmail());
         existingUser.setUserType(user.getUserType());
-        if (user.getPassword() != null && !user.getPassword().isEmpty()) {
-            existingUser.setPassword(passwordEncoder.encode(user.getPassword()));
-        }
         existingUser.setUpdatedAt(LocalDateTime.now());
         return userRepository.save(existingUser);
     }
+    
     
     @Transactional(readOnly = true)
     public boolean isUsernameTaken(String username) {
