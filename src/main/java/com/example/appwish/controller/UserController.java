@@ -6,7 +6,9 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -166,35 +168,43 @@ public class UserController {
 
     
     @PostMapping("/edit")
-    public String updateUser(@Valid @ModelAttribute("user") User user, 
-                             BindingResult bindingResult, 
-                             Model model, 
+    public String updateUser(@Valid @ModelAttribute("user") User user,
+                             BindingResult bindingResult,
                              RedirectAttributes redirectAttributes,
                              Authentication authentication) {
-        User currentUser = userService.getCurrentUser(authentication);
-        
-        // 現在のユーザーと異なるユーザー名が既に存在するかチェック
-        if (!currentUser.getUsername().equals(user.getUsername()) && userService.isUsernameTaken(user.getUsername())) {
-            bindingResult.rejectValue("username", "error.user", "このユーザー名は既に使用されています。");
-        }
-        
-        // 現在のユーザーと異なるメールアドレスが既に存在するかチェック
-        if (!currentUser.getEmail().equals(user.getEmail()) && userService.isEmailTaken(user.getEmail())) {
-            bindingResult.rejectValue("email", "error.user", "このメールアドレスは既に登録されています。");
-        }
-        
         if (bindingResult.hasErrors()) {
             return "user/userEdit";
         }
-        
+
         try {
+            User currentUser = userService.getCurrentUser(authentication);
+            
+            // 現在のユーザーと異なるユーザー名が既に存在するかチェック
+            if (!currentUser.getUsername().equals(user.getUsername()) && userService.isUsernameTaken(user.getUsername())) {
+                bindingResult.rejectValue("username", "error.user", "このユーザー名は既に使用されています。");
+            }
+            
+            // 現在のユーザーと異なるメールアドレスが既に存在するかチェック
+            if (!currentUser.getEmail().equals(user.getEmail()) && userService.isEmailTaken(user.getEmail())) {
+                bindingResult.rejectValue("email", "error.user", "このメールアドレスは既に登録されています。");
+            }
+            
+            if (bindingResult.hasErrors()) {
+                return "user/userEdit";
+            }
+            
             user.setId(currentUser.getId()); // 現在のユーザーIDを設定
-            userService.updateUser(user);
+            User updatedUser = userService.updateUser(user);
+            
+            // 認証情報を更新
+            Authentication newAuth = new UsernamePasswordAuthenticationToken(updatedUser, authentication.getCredentials(), authentication.getAuthorities());
+            SecurityContextHolder.getContext().setAuthentication(newAuth);
+            
             redirectAttributes.addFlashAttribute("message", "ユーザー情報が正常に更新されました。");
             return "redirect:/users/profile";
         } catch (Exception e) {
-            model.addAttribute("errorMessage", "更新に失敗しました: " + e.getMessage());
-            return "user/userEdit";
+            redirectAttributes.addFlashAttribute("error", "更新に失敗しました: " + e.getMessage());
+            return "redirect:/users/edit";
         }
     }
     
