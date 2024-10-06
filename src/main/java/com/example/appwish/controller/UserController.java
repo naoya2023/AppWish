@@ -105,14 +105,31 @@ public class UserController {
         return "registerComplete";
     }
 
+//    @GetMapping("/profile")
+//    public String showProfile(@RequestParam(required = false) String keyword,
+//                              @RequestParam(required = false) ProjectCategory category,
+//                              Model model, 
+//                              Authentication authentication) {
+//        if (authentication != null) {
+//            String username = authentication.getName();
+//            User user = userService.findByUsername(username);
+//            List<Project> projects = projectService.getProjectsByUser(user, keyword, category);
+//            model.addAttribute("user", user);
+//            model.addAttribute("projects", projects);
+//            model.addAttribute("keyword", keyword);
+//            model.addAttribute("selectedCategory", category);
+//            return "user/profile";
+//        }
+//        return "redirect:/login";
+//    }
+    
     @GetMapping("/profile")
     public String showProfile(@RequestParam(required = false) String keyword,
                               @RequestParam(required = false) ProjectCategory category,
-                              Model model, 
+                              Model model,
                               Authentication authentication) {
         if (authentication != null) {
-            String username = authentication.getName();
-            User user = userService.findByUsername(username);
+            User user = userService.getCurrentUser(authentication);
             List<Project> projects = projectService.getProjectsByUser(user, keyword, category);
             model.addAttribute("user", user);
             model.addAttribute("projects", projects);
@@ -180,6 +197,7 @@ public class UserController {
             return "user/userEdit";
         }
     }
+    
     
     
     @RequestMapping("/api")
