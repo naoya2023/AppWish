@@ -147,28 +147,36 @@ public class UserController {
     }
     
 
-
     
     @PostMapping("/edit")
-    public String updateUser(@ModelAttribute("user") User user, Model model, RedirectAttributes redirectAttributes) {
+    public String updateUser(@Valid @ModelAttribute("user") User user, 
+                             BindingResult bindingResult, 
+                             Model model, 
+                             RedirectAttributes redirectAttributes,
+                             Authentication authentication) {
+        User currentUser = userService.getCurrentUser(authentication);
+        
+        // 現在のユーザーと異なるユーザー名が既に存在するかチェック
+        if (!currentUser.getUsername().equals(user.getUsername()) && userService.isUsernameTaken(user.getUsername())) {
+            bindingResult.rejectValue("username", "error.user", "このユーザー名は既に使用されています。");
+        }
+        
+        // 現在のユーザーと異なるメールアドレスが既に存在するかチェック
+        if (!currentUser.getEmail().equals(user.getEmail()) && userService.isEmailTaken(user.getEmail())) {
+            bindingResult.rejectValue("email", "error.user", "このメールアドレスは既に登録されています。");
+        }
+        
+        if (bindingResult.hasErrors()) {
+            return "user/userEdit";
+        }
+        
         try {
-            // ユーザー名の重複チェック
-            if (userService.isUsernameTaken(user.getUsername())) {
-                model.addAttribute("errorMessage", "このユーザー名は既に使用されています。");
-                return "user/userEdit";
-            }
-            
-            // メールアドレスの重複チェック
-            if (userService.isEmailTaken(user.getEmail())) {
-                model.addAttribute("errorMessage", "このメールアドレスは既に登録されています。");
-                return "user/userEdit";
-            }
-
-            userService.registerUser(user);
+            user.setId(currentUser.getId()); // 現在のユーザーIDを設定
+            userService.updateUser(user);
             redirectAttributes.addFlashAttribute("message", "ユーザー情報が正常に更新されました。");
             return "redirect:/users/profile";
         } catch (Exception e) {
-            model.addAttribute("errorMessage", "登録に失敗しました: " + e.getMessage());
+            model.addAttribute("errorMessage", "更新に失敗しました: " + e.getMessage());
             return "user/userEdit";
         }
     }
