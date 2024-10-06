@@ -170,6 +170,7 @@ public class UserController {
     @PostMapping("/edit")
     public String updateUser(@Valid @ModelAttribute("user") User user,
                              BindingResult bindingResult,
+                             Model model,
                              RedirectAttributes redirectAttributes,
                              Authentication authentication) {
         if (bindingResult.hasErrors()) {
@@ -203,8 +204,8 @@ public class UserController {
             redirectAttributes.addFlashAttribute("message", "ユーザー情報が正常に更新されました。");
             return "redirect:/users/profile";
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "更新に失敗しました: " + e.getMessage());
-            return "redirect:/users/edit";
+            model.addAttribute("errorMessage", "更新に失敗しました: " + e.getMessage());
+            return "user/userEdit";
         }
     }
     

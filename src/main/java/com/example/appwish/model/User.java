@@ -87,5 +87,13 @@ public class User {
         IDEA_PROVIDER
     }
 
-    // Lombok will generate all getters and setters
+    @Override
+    public String toString() {
+        return "User{" +
+               "id=" + id +
+               ", username='" + username + '\'' +
+               ", email='" + email + '\'' +
+               ", userType=" + userType +
+               '}';
+    }
 }
