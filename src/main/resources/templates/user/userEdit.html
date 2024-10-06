@@ -67,7 +67,7 @@
         <div th:if="${errorMessage}" class="error" th:text="${errorMessage}"></div>
         <div th:if="${message}" class="success" th:text="${message}"></div>
         
-        <form th:action="@{/users/edit}" th:object="${user}" method="post">
+        <form th:action="@{/users/edit/{username}}" th:object="${user}" method="post">
             <input type="hidden" th:field="*{id}">
             
             <label for="username">ユーザー名:</label>
