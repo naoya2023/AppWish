@@ -18,9 +18,11 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 @Entity
 @Table(name = "users")
 public class User {
@@ -38,7 +40,7 @@ public class User {
     private String password;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "user_types", nullable = false)
+    @Column(name = "user_type", nullable = false)
     private UserType userType;
 
     @Column(name = "created_at")
@@ -57,18 +59,12 @@ public class User {
         inverseJoinColumns = @JoinColumn(name = "contact_id")
     )
     private List<User> contacts = new ArrayList<>();
-    
-    public String getUsername() {
-        return this.username;
-    }
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
-    
-//    @ManyToOne(cascade = CascadeType.PERSIST)
-//    @JoinColumn(name = "sender_id", nullable = false)
-//    private User sender;
+    @Column(name = "password_reset_token")
+    private String passwordResetToken;
+
+    @Column(name = "password_reset_token_expiry_date")
+    private LocalDateTime passwordResetTokenExpiryDate;
 
     @PrePersist
     protected void onCreate() {
@@ -80,26 +76,16 @@ public class User {
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
     }
-    
+
     public void markAsDeleted() {
         this.deleted = true;
         this.updatedAt = LocalDateTime.now();
     }
 
-    public boolean isDeleted() {
-        return deleted;
-    }
-    
     public enum UserType {
         ENGINEER,
         IDEA_PROVIDER
     }
-    
-    @Column(name = "password_reset_token")
-    private String passwordResetToken;
 
-    @Column(name = "password_reset_token_expiry_date")
-    private LocalDateTime passwordResetTokenExpiryDate;
-    
-    
+    // Lombok will generate all getters and setters
 }
