@@ -107,32 +107,14 @@ public class UserController {
         return "registerComplete";
     }
 
-//    @GetMapping("/profile")
-//    public String showProfile(@RequestParam(required = false) String keyword,
-//                              @RequestParam(required = false) ProjectCategory category,
-//                              Model model, 
-//                              Authentication authentication) {
-//        if (authentication != null) {
-//            String username = authentication.getName();
-//            User user = userService.findByUsername(username);
-//            List<Project> projects = projectService.getProjectsByUser(user, keyword, category);
-//            model.addAttribute("user", user);
-//            model.addAttribute("projects", projects);
-//            model.addAttribute("keyword", keyword);
-//            model.addAttribute("selectedCategory", category);
-//            return "user/profile";
-//        }
-//        return "redirect:/login";
-//    }
-    
     @GetMapping("/profile")
     public String showProfile(@RequestParam(required = false) String keyword,
                               @RequestParam(required = false) ProjectCategory category,
-                              Model model,
+                              Model model, 
                               Authentication authentication) {
         if (authentication != null) {
-        	String username = authentication.getName();
-            User user = userService.getCurrentUser(authentication);
+            String username = authentication.getName();
+            User user = userService.findByUsername(username);
             List<Project> projects = projectService.getProjectsByUser(user, keyword, category);
             model.addAttribute("user", user);
             model.addAttribute("projects", projects);
@@ -142,6 +124,23 @@ public class UserController {
         }
         return "redirect:/login";
     }
+    
+//    @GetMapping("/profile")
+//    public String showProfile(@RequestParam(required = false) String keyword,
+//                              @RequestParam(required = false) ProjectCategory category,
+//                              Model model,
+//                              Authentication authentication) {
+//        if (authentication != null) {
+//            User user = userService.getCurrentUser(authentication);
+//            List<Project> projects = projectService.getProjectsByUser(user, keyword, category);
+//            model.addAttribute("user", user);
+//            model.addAttribute("projects", projects);
+//            model.addAttribute("keyword", keyword);
+//            model.addAttribute("selectedCategory", category);
+//            return "user/profile";
+//        }
+//        return "redirect:/login";
+//    }
     
 
     @GetMapping("/edit/{username}")
@@ -198,12 +197,11 @@ public class UserController {
 //            user.setId(currentUser.getId()); // 現在のユーザーIDを設定
             user.setUsername(user.getUsername());
             user.setEmail(user.getEmail());
-            userService.updateUser(user);
+            User updatedUser = userService.updateUser(user);
             
             // 認証情報を更新
-            Authentication newAuth = new UsernamePasswordAuthenticationToken(updateUser(null, null, null), authentication.getCredentials(), authentication.getAuthorities());
+            Authentication newAuth = new UsernamePasswordAuthenticationToken(updatedUser, authentication.getCredentials(), authentication.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(newAuth);
-            
             
             redirectAttributes.addFlashAttribute("message", "ユーザー情報が正常に更新されました。");
             return "redirect:/users/profile";
