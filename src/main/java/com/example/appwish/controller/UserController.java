@@ -6,7 +6,9 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -129,6 +131,7 @@ public class UserController {
                               Model model,
                               Authentication authentication) {
         if (authentication != null) {
+        	String username = authentication.getName();
             User user = userService.getCurrentUser(authentication);
             List<Project> projects = projectService.getProjectsByUser(user, keyword, category);
             model.addAttribute("user", user);
@@ -198,8 +201,8 @@ public class UserController {
             userService.updateUser(user);
             
             // 認証情報を更新
-//            Authentication newAuth = new UsernamePasswordAuthenticationToken(updatedUser, authentication.getCredentials(), authentication.getAuthorities());
-//            SecurityContextHolder.getContext().setAuthentication(newAuth);
+            Authentication newAuth = new UsernamePasswordAuthenticationToken(updateUser(null, null, null), authentication.getCredentials(), authentication.getAuthorities());
+            SecurityContextHolder.getContext().setAuthentication(newAuth);
             
             
             redirectAttributes.addFlashAttribute("message", "ユーザー情報が正常に更新されました。");
