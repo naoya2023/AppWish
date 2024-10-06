@@ -87,13 +87,4 @@ public class User {
         IDEA_PROVIDER
     }
 
-    @Override
-    public String toString() {
-        return "User{" +
-               "id=" + id +
-               ", username='" + username + '\'' +
-               ", email='" + email + '\'' +
-               ", userType=" + userType +
-               '}';
-    }
 }
