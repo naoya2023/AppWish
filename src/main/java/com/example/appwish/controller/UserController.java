@@ -6,9 +6,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -195,11 +193,16 @@ public class UserController {
             }
             
             user.setId(currentUser.getId()); // 現在のユーザーIDを設定
-            User updatedUser = userService.updateUser(user);
+            userService.updateUser(user);
             
             // 認証情報を更新
-            Authentication newAuth = new UsernamePasswordAuthenticationToken(updatedUser, authentication.getCredentials(), authentication.getAuthorities());
-            SecurityContextHolder.getContext().setAuthentication(newAuth);
+//            Authentication newAuth = new UsernamePasswordAuthenticationToken(updatedUser, authentication.getCredentials(), authentication.getAuthorities());
+//            SecurityContextHolder.getContext().setAuthentication(newAuth);
+            
+//            User existingUser = userService.findByUsername(username);
+//            existingUser.setUsername(user.getUsername());
+//            existingUser.setEmail(user.getEmail());
+//            userService.updateUser(existingUser);
             
             redirectAttributes.addFlashAttribute("message", "ユーザー情報が正常に更新されました。");
             return "redirect:/users/profile";
