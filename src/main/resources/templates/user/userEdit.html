@@ -53,19 +53,29 @@
             color: red;
             margin-bottom: 10px;
         }
+        .field-error {
+            border-color: red;
+        }
+        
     </style>
 </head>
 <body>
     <div class="container">
         <h1>ユーザー情報編集</h1>
+        
+        <!-- グローバルエラーメッセージ -->
+        <div th:if="${errorMessage}" class="error" th:text="${errorMessage}"></div>
+        
         <form th:action="@{/users/edit}" th:object="${user}" method="post">
             <input type="hidden" th:field="*{id}">
             
             <label for="username">ユーザー名:</label>
-            <input type="text" id="username" th:field="*{username}" required>
+            <input type="text" id="username" th:field="*{username}" required th:class="${#fields.hasErrors('username')} ? 'field-error' : ''">
+            <div th:if="${#fields.hasErrors('username')}" class="error" th:errors="*{username}"></div>
 
             <label for="email">メールアドレス:</label>
-            <input type="email" id="email" th:field="*{email}" required>
+            <input type="email" id="email" th:field="*{email}" required th:class="${#fields.hasErrors('email')} ? 'field-error' : ''">
+            <div th:if="${#fields.hasErrors('email')}" class="error" th:errors="*{email}"></div>
 
             <label for="userType">ユーザータイプ:</label>
             <select id="userType" th:field="*{userType}" required>
