@@ -60,11 +60,12 @@
     </style>
 </head>
 <body>
-    <div class="container">
+     <div class="container">
         <h1>ユーザー情報編集</h1>
         
         <!-- グローバルエラーメッセージ -->
         <div th:if="${errorMessage}" class="error" th:text="${errorMessage}"></div>
+        <div th:if="${message}" class="success" th:text="${message}"></div>
         
         <form th:action="@{/users/edit}" th:object="${user}" method="post">
             <input type="hidden" th:field="*{id}">

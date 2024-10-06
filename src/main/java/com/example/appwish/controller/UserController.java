@@ -146,21 +146,33 @@ public class UserController {
         }
     }
     
-    @PostMapping("/edit")
-    public String updateUser(@Valid @ModelAttribute("user") User user, BindingResult bindingResult, RedirectAttributes redirectAttributes) {
-        if (bindingResult.hasErrors()) {
-            return "user/userEdit";
-        }
 
+
+    
+    @PostMapping("/edit")
+    public String updateUser(@ModelAttribute("user") User user, Model model, RedirectAttributes redirectAttributes) {
         try {
-            userService.updateUser(user);
+            // ユーザー名の重複チェック
+            if (userService.isUsernameTaken(user.getUsername())) {
+                model.addAttribute("errorMessage", "このユーザー名は既に使用されています。");
+                return "user/userEdit";
+            }
+            
+            // メールアドレスの重複チェック
+            if (userService.isEmailTaken(user.getEmail())) {
+                model.addAttribute("errorMessage", "このメールアドレスは既に登録されています。");
+                return "user/userEdit";
+            }
+
+            userService.registerUser(user);
             redirectAttributes.addFlashAttribute("message", "ユーザー情報が正常に更新されました。");
             return "redirect:/users/profile";
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "更新に失敗しました: " + e.getMessage());
-            return "redirect:/users/edit";
+            model.addAttribute("errorMessage", "登録に失敗しました: " + e.getMessage());
+            return "user/userEdit";
         }
     }
+    
     
     @RequestMapping("/api")
     public class UserApiController {
