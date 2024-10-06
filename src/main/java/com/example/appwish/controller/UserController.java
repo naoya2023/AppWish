@@ -192,17 +192,15 @@ public class UserController {
                 return "user/userEdit";
             }
             
-            user.setId(currentUser.getId()); // 現在のユーザーIDを設定
+//            user.setId(currentUser.getId()); // 現在のユーザーIDを設定
+            user.setUsername(user.getUsername());
+            user.setEmail(user.getEmail());
             userService.updateUser(user);
             
             // 認証情報を更新
 //            Authentication newAuth = new UsernamePasswordAuthenticationToken(updatedUser, authentication.getCredentials(), authentication.getAuthorities());
 //            SecurityContextHolder.getContext().setAuthentication(newAuth);
             
-//            User existingUser = userService.findByUsername(username);
-//            existingUser.setUsername(user.getUsername());
-//            existingUser.setEmail(user.getEmail());
-//            userService.updateUser(existingUser);
             
             redirectAttributes.addFlashAttribute("message", "ユーザー情報が正常に更新されました。");
             return "redirect:/users/profile";
