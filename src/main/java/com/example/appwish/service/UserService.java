@@ -115,25 +115,25 @@ public class UserService {
                 .orElseThrow(() -> new RuntimeException("User not found: " + username));
     }
 
-//    public User getCurrentUser(Authentication authentication) {
-//        if (authentication == null) {
-//            throw new IllegalStateException("No authentication found");
-//        }
-//        String username = authentication.getName();
-//        return userRepository.findByUsername(username)
-//            .orElseThrow(() -> new RuntimeException("Logged in user not found in the database: " + username));
-//    }
     public User getCurrentUser(Authentication authentication) {
         if (authentication == null) {
             throw new IllegalStateException("No authentication found");
-        }
-        if (authentication.getPrincipal() instanceof User) {
-            return (User) authentication.getPrincipal();
         }
         String username = authentication.getName();
         return userRepository.findByUsername(username)
             .orElseThrow(() -> new RuntimeException("Logged in user not found in the database: " + username));
     }
+//    public User getCurrentUser(Authentication authentication) {
+//        if (authentication == null) {
+//            throw new IllegalStateException("No authentication found");
+//        }
+//        if (authentication.getPrincipal() instanceof User) {
+//            return (User) authentication.getPrincipal();
+//        }
+//        String username = authentication.getName();
+//        return userRepository.findByUsername(username)
+//            .orElseThrow(() -> new RuntimeException("Logged in user not found in the database: " + username));
+//    }
 
     @Transactional(readOnly = true)
     public User getUserById(Long id) {
