@@ -175,32 +175,70 @@ public class UserController {
     
 
     
+//    @PostMapping("/edit")
+//    public String updateUser(@Valid @ModelAttribute("user") User user, 
+//                             BindingResult bindingResult, 
+//                             Model model, 
+//                             RedirectAttributes redirectAttributes,
+//                             Authentication authentication) {
+//        if (bindingResult.hasErrors()) {
+//            return "user/userEdit";
+//        }
+//
+//        try {
+//            User currentUser = userService.getCurrentUser(authentication);
+//            
+//            if (!currentUser.getUsername().equals(user.getUsername()) && userService.isUsernameTaken(user.getUsername())) {
+//                bindingResult.rejectValue("username", "error.user", "このユーザー名は既に使用されています。");
+//            }
+//            
+//            if (!currentUser.getEmail().equals(user.getEmail()) && userService.isEmailTaken(user.getEmail())) {
+//                bindingResult.rejectValue("email", "error.user", "このメールアドレスは既に登録されています。");
+//            }
+//            
+//            if (bindingResult.hasErrors()) {
+//                return "user/userEdit";
+//            }
+//            
+//            user.setId(currentUser.getId());
+//            User updatedUser = userService.updateUser(user);
+//            
+//            // 認証情報を更新
+//            Authentication newAuth = new UsernamePasswordAuthenticationToken(updatedUser, authentication.getCredentials(), authentication.getAuthorities());
+//            SecurityContextHolder.getContext().setAuthentication(newAuth);
+//            
+//            redirectAttributes.addFlashAttribute("message", "ユーザー情報が正常に更新されました。");
+//            return "redirect:/users/profile";
+//        } catch (Exception e) {
+//            model.addAttribute("errorMessage", "更新に失敗しました: " + e.getMessage());
+//            return "user/userEdit";
+//        }
+//    }
+    
     @PostMapping("/edit")
     public String updateUser(@Valid @ModelAttribute("user") User user, 
                              BindingResult bindingResult, 
                              Model model, 
                              RedirectAttributes redirectAttributes,
                              Authentication authentication) {
+        User currentUser = userService.getCurrentUser(authentication);
+        
+        // 現在のユーザーと異なるユーザー名が既に存在するかチェック
+        if (!currentUser.getUsername().equals(user.getUsername()) && userService.isUsernameTaken(user.getUsername())) {
+            bindingResult.rejectValue("username", "error.user", "このユーザー名は既に使用されています。");
+        }
+        
+        // 現在のユーザーと異なるメールアドレスが既に存在するかチェック
+        if (!currentUser.getEmail().equals(user.getEmail()) && userService.isEmailTaken(user.getEmail())) {
+            bindingResult.rejectValue("email", "error.user", "このメールアドレスは既に登録されています。");
+        }
+        
         if (bindingResult.hasErrors()) {
             return "user/userEdit";
         }
-
+        
         try {
-            User currentUser = userService.getCurrentUser(authentication);
-            
-            if (!currentUser.getUsername().equals(user.getUsername()) && userService.isUsernameTaken(user.getUsername())) {
-                bindingResult.rejectValue("username", "error.user", "このユーザー名は既に使用されています。");
-            }
-            
-            if (!currentUser.getEmail().equals(user.getEmail()) && userService.isEmailTaken(user.getEmail())) {
-                bindingResult.rejectValue("email", "error.user", "このメールアドレスは既に登録されています。");
-            }
-            
-            if (bindingResult.hasErrors()) {
-                return "user/userEdit";
-            }
-            
-            user.setId(currentUser.getId());
+            user.setId(currentUser.getId()); // 現在のユーザーIDを設定
             User updatedUser = userService.updateUser(user);
             
             // 認証情報を更新

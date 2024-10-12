@@ -3,6 +3,7 @@ package com.example.appwish.model;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -85,6 +86,24 @@ public class User {
     public enum UserType {
         ENGINEER,
         IDEA_PROVIDER
+    }
+    
+    @Override
+    public String toString() {
+        return username;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return id != null && Objects.equals(id, user.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
     }
 
 }
