@@ -111,7 +111,7 @@ public class UserController {
     public String showProfile(@RequestParam(required = false) String keyword,
                               @RequestParam(required = false) ProjectCategory category,
                               Model model,
-                              Authentication authentication) {
+                              Authentication authentication,RedirectAttributes redirectAttributes) {
         if (authentication != null) {
             User user = userService.getCurrentUser(authentication);
             List<Project> projects = projectService.getProjectsByUser(user, keyword, category);
@@ -120,6 +120,8 @@ public class UserController {
             model.addAttribute("keyword", keyword);
             model.addAttribute("selectedCategory", category);
             return "user/profile";
+        }else {
+        	 redirectAttributes.addFlashAttribute("message","null");
         }
         return "redirect:/login";
     }
