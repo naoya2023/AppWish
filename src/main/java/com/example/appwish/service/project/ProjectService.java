@@ -1,6 +1,7 @@
 package com.example.appwish.service.project;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -71,11 +72,6 @@ public class ProjectService {
         }
         return project;
     }
-
-//    @Transactional
-//    public Project saveProject(Project project) {
-//        return projectRepository.save(project);
-//    }
     
     @Transactional
     public Project saveProject(Project project) {
@@ -86,9 +82,9 @@ public class ProjectService {
         return projectRepository.save(project);
     }
 
-    public void deleteProject(Long id) {
-        projectRepository.deleteById(id);
-    }
+//    public void deleteProject(Long id) {
+//        projectRepository.deleteById(id);
+//    }
     
     public ProjectArtifact saveProjectArtifact(ProjectArtifact artifact) {
         return projectArtifactRepository.save(artifact);
@@ -231,5 +227,38 @@ public class ProjectService {
     }
     
     
+    @Transactional
+    public void deleteProject(Long id) {
+        Project project = projectRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Project not found with id: " + id));
+
+        // Remove all favorites
+        project.getFavoritedBy().clear();
+
+        // Remove all artifacts and their comments
+        for (ProjectArtifact artifact : new ArrayList<>(project.getArtifacts())) {
+            // Remove all comments for this artifact
+            for (ArtifactComment comment : new ArrayList<>(artifact.getComments())) {
+                artifactCommentRepository.delete(comment);
+            }
+            artifact.getComments().clear();
+            
+            // Remove all favorites for this artifact
+            artifact.getFavoritedBy().clear();
+            
+            // Remove the artifact
+            project.removeArtifact(artifact);
+            projectArtifactRepository.delete(artifact);
+        }
+
+        // Remove all comments associated with this project
+        for (ArtifactComment comment : new ArrayList<>(project.getComments())) {
+            project.getComments().remove(comment);
+            artifactCommentRepository.delete(comment);
+        }
+
+        // Finally, delete the project
+        projectRepository.delete(project);
+    }
 
 }
