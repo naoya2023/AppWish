@@ -36,159 +36,146 @@ import lombok.Data;
 @Entity
 @Table(name = "projects")
 public class Project {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    
-    @NotBlank(message = "タイトルは必須です")
-    @Size(max = 100, message = "タイトルは100文字以内で入力してください")
-    @Column(nullable = false)
-    private String title;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-    @Size(max = 1000, message = "説明は1000文字以内で入力してください")
-    @Column(columnDefinition = "TEXT")
-    private String description;
+	@NotBlank(message = "タイトルは必須です")
+	@Size(max = 100, message = "タイトルは100文字以内で入力してください")
+	@Column(nullable = false)
+	private String title;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idea_provider_id")
-    private User ideaProvider;
-    
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "created_by", nullable = false)
-    private User createdBy;
+	@Size(max = 1000, message = "説明は1000文字以内で入力してください")
+	@Column(columnDefinition = "TEXT")
+	private String description;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-        name = "project_engineers",
-        joinColumns = @JoinColumn(name = "project_id"),
-        inverseJoinColumns = @JoinColumn(name = "user_id")
-    )
-    private Set<User> engineers = new HashSet<>();
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "idea_provider_id")
+	private User ideaProvider;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private ProjectStatus status = ProjectStatus.PROPOSED;
+	@ManyToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "created_by", nullable = false)
+	private User createdBy;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private ProjectCategory category;
+	@ManyToMany(fetch = FetchType.LAZY)
+	@JoinTable(name = "project_engineers", joinColumns = @JoinColumn(name = "project_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
+	private Set<User> engineers = new HashSet<>();
 
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
+	private ProjectStatus status = ProjectStatus.PROPOSED;
 
-    @Column(name = "updated_at", nullable = false)
-    private LocalDateTime updatedAt;
+	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
+	private ProjectCategory category;
 
-    @Column(name = "idea_seed")
-    private String ideaSeed;
+	@Column(name = "created_at", nullable = false, updatable = false)
+	private LocalDateTime createdAt;
 
-    @Column(name = "problem_statement")
-    private String problem;
+	@Column(name = "updated_at", nullable = false)
+	private LocalDateTime updatedAt;
 
-    @Column(name = "ideal_situation")
-    private String idealSituation;
+	@Column(name = "idea_seed")
+	private String ideaSeed;
 
-    @Column(name = "current_solution")
-    private String currentSolution;
+	@Column(name = "problem_statement")
+	private String problem;
 
-    @Column(name = "user_story")
-    private String userStory;
+	@Column(name = "ideal_situation")
+	private String idealSituation;
 
-    @Column(name = "emotional_connection")
-    private String emotionalConnection;
-    
-    @ElementCollection
-    @CollectionTable(name = "project_key_features", joinColumns = @JoinColumn(name = "project_id"))
-    @Column(name = "feature")
-    private List<String> keyFeatures = new ArrayList<>();
-    
-    @Column(name = "usability_point")
-    private String usabilityPoint;
+	@Column(name = "current_solution")
+	private String currentSolution;
 
-    @Column(name = "future_possibility")
-    private String futurePossibility;
+	@Column(name = "user_story")
+	private String userStory;
 
-    @Column(name = "appeal_point")
-    private String appealPoint;
+	@Column(name = "emotional_connection")
+	private String emotionalConnection;
 
-    @Column(name = "freeform_idea")
-    @Lob
-    private String freeformIdea;
+	@ElementCollection
+	@CollectionTable(name = "project_key_features", joinColumns = @JoinColumn(name = "project_id"))
+	@Column(name = "feature")
+	private List<String> keyFeatures = new ArrayList<>();
 
-    @Column(name = "input_type")
-    private String inputType;
+	@Column(name = "usability_point")
+	private String usabilityPoint;
 
-    @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
-    }
+	@Column(name = "future_possibility")
+	private String futurePossibility;
 
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
-    }
+	@Column(name = "appeal_point")
+	private String appealPoint;
 
-    // inputType のゲッターとセッター
-    public String getInputType() {
-        return inputType;
-    }
+	@Column(name = "freeform_idea")
+	@Lob
+	private String freeformIdea;
 
-    public void setInputType(String inputType) {
-        this.inputType = inputType;
-    }
-    
+	@Column(name = "input_type")
+	private String inputType;
 
-    
-    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ProjectArtifact> artifacts = new ArrayList<>();
+	@PrePersist
+	protected void onCreate() {
+		createdAt = LocalDateTime.now();
+		updatedAt = LocalDateTime.now();
+	}
 
-    public void addArtifact(ProjectArtifact artifact) {
-        artifacts.add(artifact);
-        artifact.setProject(this);
-    }
+	@PreUpdate
+	protected void onUpdate() {
+		updatedAt = LocalDateTime.now();
+	}
 
-    public void removeArtifact(ProjectArtifact artifact) {
-        artifacts.remove(artifact);
-        artifact.setProject(null);
-    }
-    
-    
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-        name = "project_favorites",
-        joinColumns = @JoinColumn(name = "project_id"),
-        inverseJoinColumns = @JoinColumn(name = "user_id")
-    )
-    private Set<User> favoritedBy = new HashSet<>();
-    
-    public void addFavorite(User user) {
-        favoritedBy.add(user);
-    }
+	// inputType のゲッターとセッター
+	public String getInputType() {
+		return inputType;
+	}
 
-    public void removeFavorite(User user) {
-        favoritedBy.remove(user);
-    }
+	public void setInputType(String inputType) {
+		this.inputType = inputType;
+	}
 
-    public boolean isFavoritedBy(User user) {
-        return favoritedBy.contains(user);
-    }
-    
-    @Column(name = "image_url")
-    private String imageUrl;
+	@OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<ProjectArtifact> artifacts = new ArrayList<>();
 
-    // getter and setter
-    public String getImageUrl() {
-        return imageUrl;
-    }
+	public void addArtifact(ProjectArtifact artifact) {
+		artifacts.add(artifact);
+		artifact.setProject(this);
+	}
 
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
-    }
-    
+	public void removeArtifact(ProjectArtifact artifact) {
+		artifacts.remove(artifact);
+		artifact.setProject(null);
+	}
 
-    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ArtifactComment> comments = new ArrayList<>();
+	@ManyToMany(fetch = FetchType.LAZY)
+	@JoinTable(name = "project_favorites", joinColumns = @JoinColumn(name = "project_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
+	private Set<User> favoritedBy = new HashSet<>();
 
-    
+	public void addFavorite(User user) {
+		favoritedBy.add(user);
+	}
+
+	public void removeFavorite(User user) {
+		favoritedBy.remove(user);
+	}
+
+	public boolean isFavoritedBy(User user) {
+		return favoritedBy.contains(user);
+	}
+
+	@Column(name = "image_url")
+	private String imageUrl;
+
+	// getter and setter
+	public String getImageUrl() {
+		return imageUrl;
+	}
+
+	public void setImageUrl(String imageUrl) {
+		this.imageUrl = imageUrl;
+	}
+
+	@OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<ArtifactComment> comments = new ArrayList<>();
+
 }

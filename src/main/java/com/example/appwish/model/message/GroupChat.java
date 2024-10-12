@@ -25,48 +25,44 @@ import lombok.Data;
 @Entity
 @Table(name = "group_chats")
 public class GroupChat {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-    @Column(nullable = false)
-    private String name;
+	@Column(nullable = false)
+	private String name;
 
-    @ManyToOne
-    @JoinColumn(name = "creator_id", nullable = false)
-    private User creator;
+	@ManyToOne
+	@JoinColumn(name = "creator_id", nullable = false)
+	private User creator;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-        name = "group_chat_members",
-        joinColumns = @JoinColumn(name = "group_chat_id"),
-        inverseJoinColumns = @JoinColumn(name = "user_id")
-    )
-    private List<User> members = new ArrayList<>();
+	@ManyToMany(fetch = FetchType.LAZY)
+	@JoinTable(name = "group_chat_members", joinColumns = @JoinColumn(name = "group_chat_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
+	private List<User> members = new ArrayList<>();
 
-    @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt;
+	@Column(name = "created_at", nullable = false)
+	private LocalDateTime createdAt;
 
-    @Transient
-    private boolean isGroupChat = true;
+	@Transient
+	private boolean isGroupChat = true;
 
-    @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
-    }
+	@PrePersist
+	protected void onCreate() {
+		createdAt = LocalDateTime.now();
+	}
 
-    public void addMember(User user) {
-        if (!members.contains(user)) {
-            members.add(user);
-        }
-    }
+	public void addMember(User user) {
+		if (!members.contains(user)) {
+			members.add(user);
+		}
+	}
 
-    // 明示的なゲッターの追加
-    public Long getId() {
-        return this.id;
-    }
+	// 明示的なゲッターの追加
+	public Long getId() {
+		return this.id;
+	}
 
-    public boolean isGroupChat() {
-        return this.isGroupChat;
-    }
+	public boolean isGroupChat() {
+		return this.isGroupChat;
+	}
 }

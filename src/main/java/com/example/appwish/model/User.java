@@ -27,83 +27,80 @@ import lombok.Setter;
 @Entity
 @Table(name = "users")
 public class User {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-    @Column(nullable = false, unique = true)
-    private String username;
+	@Column(nullable = false, unique = true)
+	private String username;
 
-    @Column(nullable = false, unique = true)
-    private String email;
+	@Column(nullable = false, unique = true)
+	private String email;
 
-    @Column(nullable = false)
-    private String password;
+	@Column(nullable = false)
+	private String password;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "user_type", nullable = false)
-    private UserType userType;
+	@Enumerated(EnumType.STRING)
+	@Column(name = "user_type", nullable = false)
+	private UserType userType;
 
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
+	@Column(name = "created_at")
+	private LocalDateTime createdAt;
 
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+	@Column(name = "updated_at")
+	private LocalDateTime updatedAt;
 
-    @Column(nullable = false)
-    private boolean deleted = false;
+	@Column(nullable = false)
+	private boolean deleted = false;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-        name = "user_contacts",
-        joinColumns = @JoinColumn(name = "user_id"),
-        inverseJoinColumns = @JoinColumn(name = "contact_id")
-    )
-    private List<User> contacts = new ArrayList<>();
+	@ManyToMany(fetch = FetchType.LAZY)
+	@JoinTable(name = "user_contacts", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "contact_id"))
+	private List<User> contacts = new ArrayList<>();
 
-    @Column(name = "password_reset_token")
-    private String passwordResetToken;
+	@Column(name = "password_reset_token")
+	private String passwordResetToken;
 
-    @Column(name = "password_reset_token_expiry_date")
-    private LocalDateTime passwordResetTokenExpiryDate;
+	@Column(name = "password_reset_token_expiry_date")
+	private LocalDateTime passwordResetTokenExpiryDate;
 
-    @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
-    }
+	@PrePersist
+	protected void onCreate() {
+		createdAt = LocalDateTime.now();
+		updatedAt = LocalDateTime.now();
+	}
 
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
-    }
+	@PreUpdate
+	protected void onUpdate() {
+		updatedAt = LocalDateTime.now();
+	}
 
-    public void markAsDeleted() {
-        this.deleted = true;
-        this.updatedAt = LocalDateTime.now();
-    }
+	public void markAsDeleted() {
+		this.deleted = true;
+		this.updatedAt = LocalDateTime.now();
+	}
 
-    public enum UserType {
-        ENGINEER,
-        IDEA_PROVIDER
-    }
-    
-    @Override
-    public String toString() {
-        return username;
-    }
+	public enum UserType {
+		ENGINEER, IDEA_PROVIDER
+	}
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        User user = (User) o;
-        return id != null && Objects.equals(id, user.id);
-    }
+	@Override
+	public String toString() {
+		return username;
+	}
 
-    @Override
-    public int hashCode() {
-        return getClass().hashCode();
-    }
+	@Override
+	public boolean equals(Object o) {
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
+		User user = (User) o;
+		return id != null && Objects.equals(id, user.id);
+	}
+
+	@Override
+	public int hashCode() {
+		return getClass().hashCode();
+	}
 
 }

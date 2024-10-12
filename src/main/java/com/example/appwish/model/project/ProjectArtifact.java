@@ -27,60 +27,56 @@ import lombok.Data;
 @Entity
 @Table(name = "project_artifacts")
 public class ProjectArtifact {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "project_id", nullable = false)
-    private Project project;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "project_id", nullable = false)
+	private Project project;
 
-    @Column(nullable = false)
-    private String title;
+	@Column(nullable = false)
+	private String title;
 
-    @Column
-    private String filename;
+	@Column
+	private String filename;
 
-    @Column(nullable = false)
-    private String description;
+	@Column(nullable = false)
+	private String description;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "uploaded_by", nullable = false)
-    private User uploadedBy;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "uploaded_by", nullable = false)
+	private User uploadedBy;
 
-    @Column(name = "uploaded_at", nullable = false)
-    private LocalDateTime uploadedAt = LocalDateTime.now();
-    
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-        name = "artifact_favorites",
-        joinColumns = @JoinColumn(name = "artifact_id"),
-        inverseJoinColumns = @JoinColumn(name = "user_id")
-    )
-    private Set<User> favoritedBy = new HashSet<>();
-    
-    @OneToMany(mappedBy = "artifact", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ArtifactComment> comments = new ArrayList<>();
+	@Column(name = "uploaded_at", nullable = false)
+	private LocalDateTime uploadedAt = LocalDateTime.now();
 
-    public void addFavorite(User user) {
-        favoritedBy.add(user);
-    }
+	@ManyToMany(fetch = FetchType.LAZY)
+	@JoinTable(name = "artifact_favorites", joinColumns = @JoinColumn(name = "artifact_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
+	private Set<User> favoritedBy = new HashSet<>();
 
-    public void removeFavorite(User user) {
-        favoritedBy.remove(user);
-    }
+	@OneToMany(mappedBy = "artifact", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<ArtifactComment> comments = new ArrayList<>();
 
-    public boolean isFavoritedBy(User user) {
-        return favoritedBy.contains(user);
-    }
+	public void addFavorite(User user) {
+		favoritedBy.add(user);
+	}
 
-    public void addComment(ArtifactComment comment) {
-        comments.add(comment);
-        comment.setArtifact(this);
-    }
+	public void removeFavorite(User user) {
+		favoritedBy.remove(user);
+	}
 
-    public void removeComment(ArtifactComment comment) {
-        comments.remove(comment);
-        comment.setArtifact(null);
-    }
+	public boolean isFavoritedBy(User user) {
+		return favoritedBy.contains(user);
+	}
+
+	public void addComment(ArtifactComment comment) {
+		comments.add(comment);
+		comment.setArtifact(this);
+	}
+
+	public void removeComment(ArtifactComment comment) {
+		comments.remove(comment);
+		comment.setArtifact(null);
+	}
 }

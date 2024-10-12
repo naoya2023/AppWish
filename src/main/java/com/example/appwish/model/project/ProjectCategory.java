@@ -8,34 +8,34 @@ import com.fasterxml.jackson.annotation.JsonValue;
  */
 public enum ProjectCategory {
     /**
-     * Webアプリケーション
+     * エンタメ
      */
-    WEB_APPLICATION("エンタメ"),
+    ENTERTAINMENT("エンタメ"),
 
     /**
-     * モバイルアプリ
+     * ライフスタイル
      */
-    MOBILE_APP("ライフスタイル"),
+    LIFESTYLE("ライフスタイル"),
 
     /**
-     * デスクトップアプリケーション
+     * ビジネス
      */
-    DESKTOP_APPLICATION("ビジネス"),
+    BUSINESS("ビジネス"),
 
     /**
-     * ゲーム
+     * 金融
      */
-    GAME("金融"),
+    FINANCE("金融"),
 
     /**
-     * AI/機械学習
+     * ファッション
      */
-    AI_ML("ファッション"),
+    FASHION("ファッション"),
 
     /**
-     * IoT (Internet of Things)
+     * 教育
      */
-    IOT("教育"),
+    EDUCATION("教育"),
 
     /**
      * その他

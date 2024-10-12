@@ -17,8 +17,6 @@ public class AuthController {
     @PostMapping("/forgot-password")
     public String processForgotPassword(@RequestParam("email") String email, Model model) {
 		return email;
-        // パスワードリセットのロジックを実装
     }
 
-    // その他の認証関連のメソッド（ログイン、ログアウトなど）
 }

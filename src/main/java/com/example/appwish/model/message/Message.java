@@ -27,56 +27,53 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Message {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "sender_id", nullable = false)
-    private User sender;
+	@ManyToOne
+	@JoinColumn(name = "sender_id", nullable = false)
+	private User sender;
 
-    @ManyToOne
-    @JoinColumn(name = "recipient_id")
-    private User recipient;
+	@ManyToOne
+	@JoinColumn(name = "recipient_id")
+	private User recipient;
 
-    @ManyToOne
-    @JoinColumn(name = "group_chat_id")
-    private GroupChat groupChat;
+	@ManyToOne
+	@JoinColumn(name = "group_chat_id")
+	private GroupChat groupChat;
 
-    @Column(nullable = false)
-    private String content;
+	@Column(nullable = false)
+	private String content;
 
-    @Column(name = "sent_at", nullable = false)
-    private LocalDateTime sentAt;
+	@Column(name = "sent_at", nullable = false)
+	private LocalDateTime sentAt;
 
-    @Column(name = "read_at")
-    private LocalDateTime readAt;
+	@Column(name = "read_at")
+	private LocalDateTime readAt;
 
-    @Column(name = "media_url")
-    private String mediaUrl;
+	@Column(name = "media_url")
+	private String mediaUrl;
 
+	@PrePersist
+	protected void onCreate() {
+		sentAt = LocalDateTime.now();
+	}
 
-    @PrePersist
-    protected void onCreate() {
-        sentAt = LocalDateTime.now();
-    }
-    
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "project_id")
-    private Project project;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "project_id")
+	private Project project;
 
-    public enum MessageType {
-        CHAT, JOIN, LEAVE
-    }
-    
-    
-    public void setProject(Project project) {
-        this.project = project;
-    }
-    
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private MessageType type = MessageType.CHAT; // デフォルト値を設定
+	public enum MessageType {
+		CHAT, JOIN, LEAVE
+	}
 
+	public void setProject(Project project) {
+		this.project = project;
+	}
+
+	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
+	private MessageType type = MessageType.CHAT; // デフォルト値を設定
 
 }
