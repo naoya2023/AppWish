@@ -110,8 +110,8 @@ public class UserController {
     @GetMapping("/profile")
     public String showProfile(@RequestParam(required = false) String keyword,
                               @RequestParam(required = false) ProjectCategory category,
-                              Model model,
-                              Authentication authentication,RedirectAttributes redirectAttributes) {
+                              Model model, 
+                              Authentication authentication) {
         if (authentication != null) {
             User user = userService.getCurrentUser(authentication);
             List<Project> projects = projectService.getProjectsByUser(user, keyword, category);
@@ -120,8 +120,6 @@ public class UserController {
             model.addAttribute("keyword", keyword);
             model.addAttribute("selectedCategory", category);
             return "user/profile";
-        }else {
-        	 redirectAttributes.addFlashAttribute("message","null");
         }
         return "redirect:/login";
     }
@@ -169,32 +167,33 @@ public class UserController {
 
     
     @PostMapping("/edit")
-    public String updateUser(@Valid @ModelAttribute("user") User user, 
-                             BindingResult bindingResult, 
-                             Model model, 
+    public String updateUser(@Valid @ModelAttribute("user") User user,
+                             BindingResult bindingResult,
+                             Model model,
                              RedirectAttributes redirectAttributes,
                              Authentication authentication) {
-        User currentUser = userService.getCurrentUser(authentication);
-        
-        // 現在のユーザーと異なるユーザー名が既に存在するかチェック
-        if (!currentUser.getUsername().equals(user.getUsername()) && userService.isUsernameTaken(user.getUsername())) {
-            bindingResult.rejectValue("username", "error.user", "このユーザー名は既に使用されています。");
-        }
-        
-        // 現在のユーザーと異なるメールアドレスが既に存在するかチェック
-        if (!currentUser.getEmail().equals(user.getEmail()) && userService.isEmailTaken(user.getEmail())) {
-            bindingResult.rejectValue("email", "error.user", "このメールアドレスは既に登録されています。");
-        }
-        
         if (bindingResult.hasErrors()) {
             return "user/userEdit";
         }
-        
+
         try {
-            user.setId(currentUser.getId()); // 現在のユーザーIDを設定
+            User currentUser = userService.getCurrentUser(authentication);
+            
+            if (!currentUser.getUsername().equals(user.getUsername()) && userService.isUsernameTaken(user.getUsername())) {
+                bindingResult.rejectValue("username", "error.user", "このユーザー名は既に使用されています。");
+            }
+            
+            if (!currentUser.getEmail().equals(user.getEmail()) && userService.isEmailTaken(user.getEmail())) {
+                bindingResult.rejectValue("email", "error.user", "このメールアドレスは既に登録されています。");
+            }
+            
+            if (bindingResult.hasErrors()) {
+                return "user/userEdit";
+            }
+            
+            user.setId(currentUser.getId());
             User updatedUser = userService.updateUser(user);
             
-            // 認証情報を更新
             Authentication newAuth = new UsernamePasswordAuthenticationToken(updatedUser, authentication.getCredentials(), authentication.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(newAuth);
             

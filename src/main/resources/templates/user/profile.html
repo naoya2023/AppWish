@@ -219,7 +219,8 @@
         </div>
 
         <a th:href="@{/users/edit/{username}(username=${user.username})}" class="btn">プロフィール編集</a>
-
+         <div th:if="${message}" class="success" th:text="${message}"></div>
+         
         <div class="projects">
             <h2>作成したプロジェクト</h2>
             
