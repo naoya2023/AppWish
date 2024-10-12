@@ -141,6 +141,15 @@ public class UserController {
 //        return "redirect:/login";
 //    }
     
+    @GetMapping("/login")
+    public String showLogin(@RequestParam(required = false) String keyword,
+                              @RequestParam(required = false) ProjectCategory category,
+                              Model model, 
+                              Authentication authentication) {
+
+        return "login";
+    }
+    
 
     @GetMapping("/edit/{username}")
     public String showEditForm(@PathVariable String username, Model model) {
