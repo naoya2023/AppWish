@@ -97,13 +97,6 @@ public class UserService {
         User existingUser = userRepository.findById(user.getId())
                 .orElseThrow(() -> new RuntimeException("ユーザーが見つかりません"));
         
-        if (!existingUser.getUsername().equals(user.getUsername()) && isUsernameTaken(user.getUsername())) {
-            throw new RuntimeException("Username already exists");
-        }
-        if (!existingUser.getEmail().equals(user.getEmail()) && isEmailTaken(user.getEmail())) {
-            throw new RuntimeException("Email already exists");
-        }
-        
         existingUser.setUsername(user.getUsername());
         existingUser.setEmail(user.getEmail());
         existingUser.setUserType(user.getUserType());
@@ -156,6 +149,9 @@ public class UserService {
     public User getCurrentUser(Authentication authentication) {
         if (authentication == null) {
             throw new IllegalStateException("No authentication found");
+        }
+        if (authentication.getPrincipal() instanceof User) {
+            return (User) authentication.getPrincipal();
         }
         String username = authentication.getName();
         return userRepository.findByUsername(username)

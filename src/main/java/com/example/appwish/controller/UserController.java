@@ -176,9 +176,9 @@ public class UserController {
 
     
     @PostMapping("/edit")
-    public String updateUser(@Valid @ModelAttribute("user") User user,
-                             BindingResult bindingResult,
-                             Model model,
+    public String updateUser(@Valid @ModelAttribute("user") User user, 
+                             BindingResult bindingResult, 
+                             Model model, 
                              RedirectAttributes redirectAttributes,
                              Authentication authentication) {
         if (bindingResult.hasErrors()) {
@@ -203,6 +203,7 @@ public class UserController {
             user.setId(currentUser.getId());
             User updatedUser = userService.updateUser(user);
             
+            // 認証情報を更新
             Authentication newAuth = new UsernamePasswordAuthenticationToken(updatedUser, authentication.getCredentials(), authentication.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(newAuth);
             
