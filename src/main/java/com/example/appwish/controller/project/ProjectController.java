@@ -94,10 +94,43 @@ public class ProjectController {
         return "project/form";
     }
 
+//    @PostMapping("/create")
+//    public String createProject(@Valid @ModelAttribute Project project,
+//                                @RequestParam String inputType,
+//                                @RequestParam("projectImage") MultipartFile file,
+//                                BindingResult result,
+//                                RedirectAttributes redirectAttributes,
+//                                Authentication authentication) {
+//        if (result.hasErrors()) {
+//            return "project/form";
+//        }
+//
+//        User currentUser = getCurrentUser(authentication);
+//        project.setCreatedBy(currentUser);
+//
+//        if ("freeform".equals(inputType) || "both".equals(inputType)) {
+//            project.setDescription(project.getFreeformIdea());
+//        }
+//
+//        if (!file.isEmpty()) {
+//            try {
+//                String filename = storageService.store(file);
+//                project.setImageUrl("/uploads/" + filename);
+//            } catch (IOException e) {
+//                redirectAttributes.addFlashAttribute("error", "画像のアップロードに失敗しました: " + e.getMessage());
+//                return "redirect:/projects/create";
+//            }
+//        }
+//
+//        projectService.saveProject(project);
+//        redirectAttributes.addFlashAttribute("message", "プロジェクトが正常に作成されました。");
+//        return "redirect:/projects";
+//    }
+    
     @PostMapping("/create")
     public String createProject(@Valid @ModelAttribute Project project,
                                 @RequestParam String inputType,
-                                @RequestParam("projectImage") MultipartFile file,
+                                @RequestParam(value = "projectImage", required = false) MultipartFile file,
                                 BindingResult result,
                                 RedirectAttributes redirectAttributes,
                                 Authentication authentication) {
@@ -105,14 +138,14 @@ public class ProjectController {
             return "project/form";
         }
 
-        User currentUser = getCurrentUser(authentication);
+        User currentUser = userService.getCurrentUser(authentication);
         project.setCreatedBy(currentUser);
 
         if ("freeform".equals(inputType) || "both".equals(inputType)) {
             project.setDescription(project.getFreeformIdea());
         }
 
-        if (!file.isEmpty()) {
+        if (file != null && !file.isEmpty()) {
             try {
                 String filename = storageService.store(file);
                 project.setImageUrl("/uploads/" + filename);

@@ -1,5 +1,6 @@
 package com.example.appwish.service.project;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -71,8 +72,17 @@ public class ProjectService {
         return project;
     }
 
+//    @Transactional
+//    public Project saveProject(Project project) {
+//        return projectRepository.save(project);
+//    }
+    
     @Transactional
     public Project saveProject(Project project) {
+        if (project.getCreatedAt() == null) {
+            project.setCreatedAt(LocalDateTime.now());
+        }
+        project.setUpdatedAt(LocalDateTime.now());
         return projectRepository.save(project);
     }
 
